@@ -1,0 +1,17 @@
+\usepackage{graphicx}
+\usepackage[dvipsnames]{xcolor}
+
+\definecolor{lightblue}{RGB}{5, 158, 161}
+
+\newcommand{\colorsection}[1]{%
+  \colorbox{lightblue!20}{\parbox{\dimexpr\textwidth-1\fboxsep}{\ #1}}
+}
+
+\newcommand{\centeredimage}[2][\textwidth]{
+    \begin{figure}[h]
+        \centering
+        \includegraphics[keepaspectratio, width=#1]{#2}
+    \end{figure}
+}
+
+\renewcommand{\rmdefault}{lmr}

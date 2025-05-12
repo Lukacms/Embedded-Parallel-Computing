@@ -1,0 +1,11 @@
+name := "embedded_parallel"
+build_folder := "./build"
+
+build:
+	#!/usr/bin/bash
+	mkdir -p build
+	pdflatex -output-directory={{build_folder}} -jobname={{name}} main.tex
+
+generate: build
+	#!/usr/bin/bash
+	mv build/{{name}}.pdf .

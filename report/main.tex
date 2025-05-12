@@ -1,0 +1,103 @@
+\documentclass[12pt, titlepage]{article}
+\usepackage[a4paper, includehead]{geometry}
+\usepackage{bookmark}
+\usepackage{lmodern}
+\usepackage[english]{babel}
+\usepackage[autolanguage]{numprint} % for the \nombre command
+\usepackage{hyphenat}
+\usepackage{epigraph}
+
+\input{src/utils/preamble}
+
+\usepackage[most]{tcolorbox}
+\usepackage{wrapfig}
+\usepackage[]{hyperref}
+\usepackage{tikz}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{subfiles} % better in last
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,
+    urlcolor=blue,
+    pdftitle={Seminar on GDPR - Luka CAMUS},
+    pdfpagemode=FullScreen,
+}
+
+\geometry{
+    left=20mm,
+    top=-4mm,
+    bottom=20mm,
+    right=20mm,
+    headheight=20mm,
+}
+
+\newtcolorbox{colbackbox}[2][]{
+    tile,
+    colback=#2,
+    size=minimal, left=\oddsidemargin+1in,right=\oddsidemargin+1in, spread sidewards,
+    parbox=false, before upper=\indent, after=\par, #1
+}
+\titleformat{name=\section}[block]
+  {\sffamily\large}
+  {}
+  {0pt}
+  {\colorsection}
+\titlespacing*{\section}{0pt}{\baselineskip}{\baselineskip}
+
+\begin{titlepage}
+
+  \title{
+    \color{lightblue}{Parallel Computing with DNA Forensics Data}
+  }
+  \author{
+    Students: Luka Camus - Lucas Hauszler\\
+    \small{Authors: Adam Michaleas, Philip Fremont-Smith, Chelsea Lennartz, Darrell O. Ricke}
+  }
+\date{May 2025}
+
+\end{titlepage}
+
+\titleformat*{\section}{\Large\bfseries}
+
+\begin{document}
+
+% handle headers and footers
+\pagestyle{fancy}
+\fancyhead{}
+\fancyhead[L]{
+    \begin{colbackbox}{lightblue}
+        \hfill \break
+        \hfill \break
+        \hfill \break
+        \color{white}{\textbf{\large{Embedded Parallel Programming}}}
+        \hfill \break
+        \hfill \break
+    \end{colbackbox}
+}
+\setlength{\headheight}{73.95007pt}
+\renewcommand{\headrulewidth}{0pt}
+\fancyfoot{}
+\fancyfoot[R]{\thepage}
+
+\hypersetup{pageanchor=false}
+\maketitle
+
+\hypersetup{pageanchor=true}
+\pagenumbering{arabic}
+
+\subfile{src/utils/table_of_contents}
+
+\hfill \break
+\hfill \break
+\hfill \break
+\hfill \break
+
+\subfile{src/introduction.tex}
+
+\newpage
+\subfile{src/conclusion.tex}
+
+\end{document}
