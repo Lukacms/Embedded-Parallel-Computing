@@ -1,0 +1,19 @@
+namespace math:
+    external function sqrt(double f) --> float end
+
+    function my_fabs(double x) --> float:
+        if(x < 0.0) then
+            -1.0 * x
+        else
+            x
+        end
+    end
+
+    function num_s(double x) --> float:
+        if (my_fabs(x) < 1.0e-7) then
+            0.0
+        else
+            x
+        end
+    end
+end

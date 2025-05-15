@@ -1,0 +1,6 @@
+[submodule "streamblocks-tycho"]
+	path = streamblocks-tycho
+	url = git@github.com:streamblocks/streamblocks-tycho.git
+[submodule "streamblocks-platforms"]
+	path = streamblocks-platforms
+	url = git@github.com:streamblocks/streamblocks-platforms.git

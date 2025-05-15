@@ -1,0 +1,296 @@
+namespace qrd:
+    import all math;
+
+    int M = 8;   // M rows of matrix
+    int K = 8;   // K columns of matrix
+
+    List(type:double, size=M*K) A = [
+        1,1,1,1,1,1,1,1,
+        2,2,2,2,2,2,2,2,
+        3,3,3,3,3,3,3,3,
+        4,4,4,4,4,4,4,4,
+        5,5,5,5,5,5,5,5,
+        6,6,6,6,6,6,6,6,
+        7,7,7,7,7,7,7,7,
+        8,8,8,8,8,8,8,8
+    ];
+
+    actor SourceA() ==> double OutA:
+        int index_A := 0;
+        transmit:
+            action ==> OutA:[A[index_A-1]]
+            guard index_A < M*K
+            do
+                index_A := index_A + 1;
+            end
+        end
+
+
+    procedure PrintMatrix(List(type:double, size=rows*cols) mat, int rows, int cols)
+    begin
+        foreach int i in 0..rows-1 do
+            foreach int j in 0..cols-1 do
+                print(mat[i * cols + j] + " ");
+                if((j+1) mod cols = 0) then println(""); end
+            end
+        end
+    end
+
+    actor QRDecomposition(int rows, int cols) double InA ==> double OutQ, double OutR:
+        // ========== Global Variables ==========
+
+        // Size of the matrix
+        int sizeA = rows*cols;
+
+        // Value used to track the number of elements received
+        // from the input matrix A
+        int receivedA := 0;
+
+        // Temporary storage for the input matrix A
+        List(type:double, size=sizeA) matA;
+        // Temporary storage for the output matrices Q and R
+        List(type:double, size=rows*cols) OutQ;
+        List(type:double, size=rows*cols) OutR;
+
+        // Temporary storage for the stnd_basis matrix
+        List(type:double, size=rows*cols) stnd_basis;
+
+        // Flag to check if printing is done
+        bool print_done := false;
+
+        // Flag to check if matrix identity is done
+        bool identity_done := false;
+
+        // Passes done for decomposition
+        int passes_done := 0;
+
+        // ========== Actions ==========
+
+        // Copy the input matrix A to the temporary storage
+        receiveA:
+            action InA:[r] ==>
+            do
+                // Copy data from InA to matA
+                matA[receivedA] := r;
+                // Copy data from InA to R (R should be the same as A to start)
+                OutR[receivedA] := r;
+                receivedA := receivedA + 1;
+            end
+
+        // Both Q and stnd_basis should be identity matrices to start
+        eye:
+            action ==> OutQ:[1.0]
+            guard OutQ[sizeA-1] = 0.0
+            do
+                foreach int i in 0..rows-1 do
+                    foreach int j in 0..cols-1 do
+                        if(i = j) then
+                            OutQ[i * cols + j] := 1.0;
+                            stnd_basis[i * cols + j] := 1.0;
+                        else
+                            OutQ[i * cols + j] := 0.0;
+                            stnd_basis[i * cols + j] := 0.0;
+                        end
+                    end
+                end
+                identity_done := true;
+            end
+
+        // Perform the householder transformation
+        qr_decomposition:
+            action ==>
+            guard receivedA = sizeA, identity_done = true, passes_done < rows
+            var
+                List(type:double, size=rows) x,
+                List(type:double, size=rows) basis,
+
+                double norm,
+                double alpha,
+
+                List(type:double, size=rows) u,
+                double norm_u_squared,
+
+                List(type:double, size=rows * rows) H,
+                List(type:double, size=rows * rows) outer_product,
+                
+                List(type:double, size=rows * cols) temp_mat,
+                double sum,
+
+                bool is_upper_triangular := true,
+
+                List(type:double, size=cols * rows) Q_transposed
+            do
+                // Initialize x
+                foreach int i in 0..rows-1 do
+                    x[i] := matA[i * cols + passes_done];
+                end
+                
+                // Initialize basis
+                foreach int i in 0..rows-1 do
+                    basis[i] := stnd_basis[i * cols + passes_done];
+                end
+
+                // Compute norm
+                norm := 0.0;
+                foreach int i in 0..rows-1 do
+                    norm := norm + x[i] * x[i];
+                end
+                norm := sqrt(norm);
+                println("Norm:" + norm);
+
+                // Compute alpha 
+                if (x[passes_done] >= 0) then
+                    alpha := -norm;
+                else
+                    alpha := norm;
+                end
+
+                // Initialize U
+                foreach int i in 0..rows-1 do
+                    u[i] := x[i] - alpha * basis[i];
+                end
+
+                // Print U
+                print("U:");
+                foreach int i in 0..rows-1 do
+                    print(u[i] + " ");
+                end
+                println("");
+
+                // Compute norm of U
+                norm_u_squared := 0.0;
+                foreach int i in 0..rows-1 do
+                    norm_u_squared := norm_u_squared + u[i] * u[i];
+                end
+                println("Norm of U:" + norm_u_squared);
+
+                // TODO: if norm_u_squared is 0, then we skip the transformation
+                
+                // Householder transformation
+                // Init H
+                foreach int i in 0..rows-1 do
+                    foreach int j in 0..rows-1 do
+                        if (i = j) then
+                            H[i * rows + j] := 1.0;
+                        else
+                            H[i * rows + j] := 0.0;
+                        end
+                    end
+                end
+                // Compute outer product
+                foreach int i in 0..rows-1 do
+                    foreach int j in 0..cols-1 do
+                        outer_product[i * rows + j] := u[i] * u[j];
+                    end
+                end
+                println("Outer product:");
+                foreach int i in 0..rows-1 do
+                    foreach int j in 0..cols-1 do
+                        print(outer_product[i * rows + j] + " ");
+                    end
+                    println("");
+                end
+                // Compute H
+                foreach int i in 0..(rows*cols)-1 do
+                    H[i] := H[i] - (2.0 * outer_product[i] / norm_u_squared);
+                end
+                // Q = H * Q
+                foreach int i in 0..rows-1 do
+                    foreach int j in 0..cols-1 do
+                        sum := 0.0;
+                        foreach int k in 0..rows-1 do
+                            sum := sum + H[i * rows + k] * OutQ[k * cols + j];
+                        end
+                        temp_mat[i * cols + j] := sum;
+                    end
+                end
+                // Copy TempQ to OutQ
+                foreach int i in 0..(rows*cols)-1 do
+                    OutQ[i] := temp_mat[i];
+                end
+
+                // R = H * R
+                foreach int i in 0..rows-1 do
+                    foreach int j in 0..cols-1 do
+                        sum := 0.0;
+                        foreach int k in 0..rows-1 do
+                            sum := sum + H[i * rows + k] * OutR[k * cols + j];
+                        end
+                        temp_mat[i * cols + j] := sum;
+                    end
+                end
+                // Copy TempR to OutR
+                foreach int i in 0..(rows*cols)-1 do
+                    OutR[i] := temp_mat[i];
+                end
+                
+
+                println("Matrix R:");
+                PrintMatrix(OutR, rows, cols);
+
+                // Numerical stability fix
+                foreach int i in 0..(rows*cols)-1 do
+                    OutR[i] := num_s(OutR[i]);
+                end
+
+                // Check if R is upper triangular
+                is_upper_triangular := true;
+                foreach int i in 0..rows-1 do
+                    foreach int j in i..cols-1 do
+                        if (OutR[i * cols + j] != 0.0) then
+                            is_upper_triangular := false;
+                        end
+                    end
+                end
+
+                if (is_upper_triangular) then
+                    // Stop execution if R is upper triangular
+                    println("R is upper triangular");
+                    passes_done := rows;
+                else
+                    // TODO: change to passes_done := passes_done + 1;
+                    passes_done := rows;
+                end
+
+                // If passes_done is equal to rows, then we are done
+                // so we need to transpose Q
+                if (passes_done = rows) then
+                    // Transpose Q
+                    println("Transposing Q:");
+                    foreach int i in 0..rows-1 do
+                        foreach int j in 0..cols-1 do
+                            Q_transposed[j * rows + i] := OutQ[i * cols + j];
+                        end
+                    end
+                    foreach int i in 0..(rows*cols)-1 do
+                        OutQ[i] := Q_transposed[i];
+                    end
+                end
+            end
+
+        print_results:
+            action ==> 
+            guard print_done = false, passes_done = rows
+            do
+                println("Matrix A:");
+                PrintMatrix(matA, rows, cols);
+
+                println("Matrix Q:");
+                PrintMatrix(OutQ, rows, cols);
+
+                println("Matrix R:");
+                PrintMatrix(OutR, rows, cols);
+
+                print_done := true;
+            end
+        end
+
+    network Top() ==> :
+        entities
+            sourceA = SourceA();
+            sourceB = SourceA();
+            matMultiplier = QRDecomposition(rows=M, cols=K);
+        structure
+            sourceA.OutA --> matMultiplier.InA;
+        end
+end
