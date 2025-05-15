@@ -1,0 +1,48 @@
+\documentclass[../main.tex]{subfiles}
+
+\begin{document}
+
+\section{Materials and Methods}
+
+\subsection{HTS Sequencing}
+Ion Torrent and Illumina sequencing libraries, as well as their library quantitation are both prepared with different kits, each according to the manufacturers' instructions. Those libraries include AmpliSeq library kit, IonXpress Barcode Adapter and Ion Library TaqMan Quantation Kit for IonTorrent; Ion AmpliSeq Library PLUS, AmpliSeq UD Indexes, and  NEBNext Library Quant Kit are used for Illumina.\
+Ion Torrent necessite template preparation, and both perform sequencing using different kits according to the manufacturers' instructions.
+
+The DNA output information of Illumina and ThermoFisher are generated in BAM or FASTQ file format, and both plateforms were used for benchmarking by generating files with 20, 50, 100, and 250 millions reads.
+
+\subsection{Forensic Panel}
+
+An in silico\footnote{performed on a computer, or via simulation software} SNP panel was created for 10298 SNPs, whose reference profiles were extracted from the 1000 Genomes project\cite{genomes}, then combined to create mixtures from known contributors.
+
+\subsection{Batch Layer}
+
+GrigoraSNP Tool uses SCALA language, and makes use of the Akka framework to enable the parallel computation of SNP allele calling of barcoded multiplexed HTS data. IT's designed to be  scalable.
+
+\subsection{Serving Layer}
+
+IdPrism was developed to be an end-user plateform using Ruby on Rails, and a relational database. It provides them with an easy access of the analysis, and uses either FastID or TranslucentID depending of the number of contributors in a mixture.
+
+\subsection{Hardware Platforms}
+
+Both AMD and Intel systems plateform were used for the performance benchmarking plots. The AMD model has 64 CPU cores with 512GB RAM, and the Intel 40 CPU cores and 80 threads with 192 GB RAM.
+
+\subsection{High Performance Computing System Implementation}
+
+The HPC system for the pipeline developement is the MIT Laboratory Tx-Green's system; its implementation of the GrigoraSNP pipeline uses LLMapReduce to generate results from FASTQ datasets in parallel. It uses the map-reduce programming model to allow users to process a large amount of data in the same program.
+
+\subsection{Standalone System Implementation}
+
+The pipelines running in parallel use standalone Linux systems to generate the analysis' results. They were tested and validated on both hardware platforms, and GNU Parallel was used for benchmarking.
+
+\subsection{Illumina MiSeq Pipeline}
+
+The detection of new DNA sequence runs in the Illumina MiSeq pipeline is automated. They ingest only on success and run every 15 min by default.\
+A run marked as successfull will locate the appropriate FASTQ files for processing. The datasets are copied on the data analysis server to be decompressed in parallel using pigz\footnote{parallel implementation of gzip}. The FASTQ files for each sequence run are then combined to be put as argument for GrigoraSNP that executes SNP allele calling. The results are then uploaded to IdPrism.
+
+\subsection{ThermoFisher Ion S5 XL Pipeline}
+
+The detection of new sequence runs is also automated, and data is only ingested on success run. The pipeline runs every 15 min by default.\
+A success run of the Ion S5 Sequencer is marked as so in the \texttt{drmaa stdout.txt}. The pipeline will then ingest BAM output files in parallel. SAMtools is then invoked to convert BAM files to FASTQ. GrigoraSNP is then called on the generated file, and the results uploaded to IdPrism.
+  
+\end{document}
+

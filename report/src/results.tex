@@ -1,0 +1,18 @@
+\documentclass[../main.tex]{subfiles}
+
+\begin{document}
+
+\section{Results}
+
+This pipeline is able to identify all twelve contributors using FastID with very low (RMNE) values (8.3e-130). GNUParallel and LLMapReduce enabled both scalability and parallel computing for the GrigoraSNPs batch layer for both environments (standalone and HPC). No matter the number of datasets runs in parallel (from 1 to 250), the analysis time increases only slightly for bigger numbers with the use of GNUParallel and LLMapReduce, showing a near linear performance of the pipeline.
+
+\section{Discussion}
+
+The innovation described in the paper enable the adoption of SNP forensic panel without requiring the expansion of current data centers. They also enable DNA forensic analysis on laptops as they can run on HPC systems or a laptop.
+
+\section{Future Work}
+
+The future goal of this pipeline would be to support hybrid STR and SNP panels.
+  
+\end{document}
+

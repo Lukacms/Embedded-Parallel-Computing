@@ -5,7 +5,15 @@ build:
 	#!/usr/bin/bash
 	mkdir -p build
 	pdflatex -output-directory={{build_folder}} -jobname={{name}} main.tex
+	biber {{build_folder}}/{{name}}.bcf
+	pdflatex -output-directory={{build_folder}} -jobname={{name}} main.tex
 
 generate: build
 	#!/usr/bin/bash
 	mv build/{{name}}.pdf .
+
+count_words:
+	#!/usr/bin/bash
+	pdftotext {{name}}.pdf
+	wc -w {{name}}.txt
+	rm {{name}}.txt

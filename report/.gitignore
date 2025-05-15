@@ -309,3 +309,4 @@ TSWLatexianTemp*
 
 # project specific
 build/
+embedded_parallel.txt

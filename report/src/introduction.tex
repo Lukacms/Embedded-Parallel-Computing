@@ -4,4 +4,23 @@
 
 \section{Introduction}
 
+Today, forensic scientists can identify subjects from DNA (deoxyribonucleic acid) samples that have DNA from multiple subjects by comparing DNA samples against a reference.
+The current criminal forensic solutions compare length polymorphism of STR\footnote{Short Tandem Repeat} to detect a selected set of loci\footnote{a locus: fixed position on a chromosome where a particular gene or genetic marker is located}. Forensic scientists can also analyse DNA to determine the genetic relation of peoples.
+
+From 2017, the USA's CODI\footnote{Combined DNA Index System} has 20 loci\cite{fbi} that are valuable for the analysis of DNA mixture which include typically less than 4 contributors, and the identification of first degree relationship.\
+To identify up to 10 contributors, MIT developped custom SNP\footnote{single nucleotide polymorphism} panels. They are a collection of DNA spots attached to a surface that are used to detect polymorphism in a population. With SNP panels using the TranslucentID\cite{translucentid} method, more than 10 contributors can be identified in DNA mixtures.
+
+The probability of random man not excluded, or P(RMNE), is the forensic calculation of a DNA profile match for someone not in the DNA mixture. Other forensic statical calculations donc scale with large number of loci and allele mismatches.
+
+This paper\cite{dna_forensic} finds a way to avoid performance scaling issues that come from sizing 20 STRs to processing hundred of millions of DNA sequences. For this purpose, it uses five tools:
+\begin{itemize}
+  \item{GrigoraSNPs can allele call HTS sequences} 
+  \item{FastID\cite{fastid} enables the reference and mixture of SNP profile comparaison against large datasets}
+  \item{Fast P(RMNE) enable the rapid probability calculation of RMNE}
+  \item{TranslucentID identifies the contributors in a DNA mixture with a large number of contributors}
+  \item{IdPrism is a visualization tool for end users that show the results of FastID}
+\end{itemize}
+Those tools are put together in a fully automated pipeline, and are tested and benchmarked with Ion Torrent and Illumina DNA sequencing platforms.
+
+
 \end{document}

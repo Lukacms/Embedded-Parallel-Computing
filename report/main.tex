@@ -6,6 +6,8 @@
 \usepackage[autolanguage]{numprint} % for the \nombre command
 \usepackage{hyphenat}
 \usepackage{epigraph}
+\usepackage[maxbibnames=10]{biblatex}
+\addbibresource{src/resources.bib}
 
 \input{src/utils/preamble}
 
@@ -95,9 +97,20 @@
 \hfill \break
 \hfill \break
 
+\subfile{src/abstract.tex}
 \subfile{src/introduction.tex}
-
-\newpage
+\medskip
+\subfile{src/related_work.tex}
+\medskip
+\subfile{src/methods.tex}
+\medskip
+\subfile{src/serving_layer.tex}
+\medskip
+\subfile{src/results.tex}
+\medskip
 \subfile{src/conclusion.tex}
+
+\medskip
+\printbibliography
 
 \end{document}
