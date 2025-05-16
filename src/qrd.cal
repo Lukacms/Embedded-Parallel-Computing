@@ -235,11 +235,6 @@ namespace qrd:
                     println("Matrix R:");
                     PrintMatrix(OutR, rows, cols);
 
-                    // Numerical stability fix (already moved up)
-                    foreach int i in 0..(rows*cols)-1 do
-                        OutR[i] := num_s(OutR[i]);
-                    end
-
                     // Check if R is upper triangular
                     is_upper_triangular := true;
                     foreach int i in 0..rows-1 do
