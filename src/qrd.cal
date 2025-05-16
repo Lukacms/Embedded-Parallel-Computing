@@ -9,10 +9,10 @@ namespace qrd:
         2,2,2,2,2,2,2,2,
         3,3,3,3,3,3,3,3,
         4,4,4,4,4,4,4,4,
-        5,5,5,5,5,5,5,5,
+        5,5,5,5,50,5,5,5,
         6,6,6,6,6,6,6,6,
         7,7,7,7,7,7,7,7,
-        8,8,8,8,8,8,8,8
+        8,8,8,8,8,8,8,9
     ];
 
     actor SourceA() ==> double OutA:
@@ -122,7 +122,10 @@ namespace qrd:
             do
                 // Initialize x
                 foreach int i in 0..rows-1 do
-                    x[i] := matA[i * cols + passes_done];
+                    x[i] := OutR[i * cols + passes_done];
+                end
+                foreach int i in 0..passes_done-1 do
+                    x[i] := 0.0;
                 end
                 
                 // Initialize basis
@@ -136,7 +139,6 @@ namespace qrd:
                     norm := norm + x[i] * x[i];
                 end
                 norm := sqrt(norm);
-                println("Norm:" + norm);
 
                 // Compute alpha 
                 if (x[passes_done] >= 0) then
@@ -146,6 +148,10 @@ namespace qrd:
                 end
 
                 // Initialize U
+                print("X:");
+                foreach int i in 0..rows-1 do
+                    print(x[i] + " ");
+                end
                 foreach int i in 0..rows-1 do
                     u[i] := x[i] - alpha * basis[i];
                 end
@@ -164,89 +170,92 @@ namespace qrd:
                 end
                 println("Norm of U:" + norm_u_squared);
 
-                // TODO: if norm_u_squared is 0, then we skip the transformation
-                
-                // Householder transformation
-                // Init H
-                foreach int i in 0..rows-1 do
-                    foreach int j in 0..rows-1 do
-                        if (i = j) then
-                            H[i * rows + j] := 1.0;
-                        else
-                            H[i * rows + j] := 0.0;
-                        end
-                    end
-                end
-                // Compute outer product
-                foreach int i in 0..rows-1 do
-                    foreach int j in 0..cols-1 do
-                        outer_product[i * rows + j] := u[i] * u[j];
-                    end
-                end
-                println("Outer product:");
-                foreach int i in 0..rows-1 do
-                    foreach int j in 0..cols-1 do
-                        print(outer_product[i * rows + j] + " ");
-                    end
-                    println("");
-                end
-                // Compute H
-                foreach int i in 0..(rows*cols)-1 do
-                    H[i] := H[i] - (2.0 * outer_product[i] / norm_u_squared);
-                end
-                // Q = H * Q
-                foreach int i in 0..rows-1 do
-                    foreach int j in 0..cols-1 do
-                        sum := 0.0;
-                        foreach int k in 0..rows-1 do
-                            sum := sum + H[i * rows + k] * OutQ[k * cols + j];
-                        end
-                        temp_mat[i * cols + j] := sum;
-                    end
-                end
-                // Copy TempQ to OutQ
-                foreach int i in 0..(rows*cols)-1 do
-                    OutQ[i] := temp_mat[i];
-                end
-
-                // R = H * R
-                foreach int i in 0..rows-1 do
-                    foreach int j in 0..cols-1 do
-                        sum := 0.0;
-                        foreach int k in 0..rows-1 do
-                            sum := sum + H[i * rows + k] * OutR[k * cols + j];
-                        end
-                        temp_mat[i * cols + j] := sum;
-                    end
-                end
-                // Copy TempR to OutR
-                foreach int i in 0..(rows*cols)-1 do
-                    OutR[i] := temp_mat[i];
-                end
-
-                println("Matrix R:");
-                PrintMatrix(OutR, rows, cols);
-
-                // Numerical stability fix
-                foreach int i in 0..(rows*cols)-1 do
-                    OutR[i] := num_s(OutR[i]);
-                end
-
-                // Check if R is upper triangular
-                is_upper_triangular := true;
-                foreach int i in 0..rows-1 do
-                    foreach int j in 0..i-1 do
-                        if (OutR[i * cols + j] != 0.0) then
-                            is_upper_triangular := false;
-                        end
-                    end
-                end
-
-                if (is_upper_triangular) then
-                    // Stop execution if R is upper triangular
-                    passes_done := rows;
-                else
+                // If norm_u_squared is 0, then we skip the transformation
+                if (my_fabs(norm_u_squared) < 1.0e-7) then
                     passes_done := passes_done + 1;
+                else
+                    // Householder transformation
+                    // Init H
+                    foreach int i in 0..rows-1 do
+                        foreach int j in 0..rows-1 do
+                            if (i = j) then
+                                H[i * rows + j] := 1.0;
+                            else
+                                H[i * rows + j] := 0.0;
+                            end
+                        end
+                    end
+                    // Compute outer product
+                    foreach int i in 0..rows-1 do
+                        foreach int j in 0..cols-1 do
+                            outer_product[i * rows + j] := u[i] * u[j];
+                        end
+                    end
+                    println("Outer product:");
+                    foreach int i in 0..rows-1 do
+                        foreach int j in 0..cols-1 do
+                            print(outer_product[i * rows + j] + " ");
+                        end
+                        println("");
+                    end
+                    // Compute H
+                    foreach int i in 0..(rows*cols)-1 do
+                        H[i] := H[i] - (2.0 * outer_product[i] / norm_u_squared);
+                    end
+                    // Q = H * Q
+                    foreach int i in 0..rows-1 do
+                        foreach int j in 0..cols-1 do
+                            sum := 0.0;
+                            foreach int k in 0..rows-1 do
+                                sum := sum + H[i * rows + k] * OutQ[k * cols + j];
+                            end
+                            temp_mat[i * cols + j] := sum;
+                        end
+                    end
+                    // Copy TempQ to OutQ
+                    foreach int i in 0..(rows*cols)-1 do
+                        OutQ[i] := temp_mat[i];
+                    end
+
+                    // R = H * R
+                    foreach int i in 0..rows-1 do
+                        foreach int j in 0..cols-1 do
+                            sum := 0.0;
+                            foreach int k in 0..rows-1 do
+                                sum := sum + H[i * rows + k] * OutR[k * cols + j];
+                            end
+                            temp_mat[i * cols + j] := sum;
+                        end
+                    end
+                    // Copy TempR to OutR
+                    foreach int i in 0..(rows*cols)-1 do
+                        OutR[i] := num_s(temp_mat[i]);
+                    end
+
+                    println("Matrix R:");
+                    PrintMatrix(OutR, rows, cols);
+
+                    // Numerical stability fix (already moved up)
+                    foreach int i in 0..(rows*cols)-1 do
+                        OutR[i] := num_s(OutR[i]);
+                    end
+
+                    // Check if R is upper triangular
+                    is_upper_triangular := true;
+                    foreach int i in 0..rows-1 do
+                        foreach int j in 0..i-1 do
+                            if (OutR[i * cols + j] != 0.0) then
+                                is_upper_triangular := false;
+                            end
+                        end
+                    end
+
+                    if (is_upper_triangular) then
+                        // Stop execution if R is upper triangular
+                        passes_done := rows;
+                    else
+                        passes_done := passes_done + 1;
+                    end
                 end
 
                 // If passes_done is equal to rows, then we are done
