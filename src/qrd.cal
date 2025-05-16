@@ -223,7 +223,6 @@ namespace qrd:
                 foreach int i in 0..(rows*cols)-1 do
                     OutR[i] := temp_mat[i];
                 end
-                
 
                 println("Matrix R:");
                 PrintMatrix(OutR, rows, cols);
@@ -236,7 +235,7 @@ namespace qrd:
                 // Check if R is upper triangular
                 is_upper_triangular := true;
                 foreach int i in 0..rows-1 do
-                    foreach int j in i..cols-1 do
+                    foreach int j in 0..i-1 do
                         if (OutR[i * cols + j] != 0.0) then
                             is_upper_triangular := false;
                         end
@@ -245,18 +244,14 @@ namespace qrd:
 
                 if (is_upper_triangular) then
                     // Stop execution if R is upper triangular
-                    println("R is upper triangular");
                     passes_done := rows;
                 else
-                    // TODO: change to passes_done := passes_done + 1;
-                    passes_done := rows;
+                    passes_done := passes_done + 1;
                 end
 
                 // If passes_done is equal to rows, then we are done
                 // so we need to transpose Q
                 if (passes_done = rows) then
-                    // Transpose Q
-                    println("Transposing Q:");
                     foreach int i in 0..rows-1 do
                         foreach int j in 0..cols-1 do
                             Q_transposed[j * rows + i] := OutQ[i * cols + j];
