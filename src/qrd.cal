@@ -16,7 +16,7 @@ namespace qrd:
     ];
 
     actor SourceA() ==> double OutA:
-        int index_A := 0;
+        uint index_A := 0;
         transmit:
             action ==> OutA:[A[index_A-1]]
             guard index_A < M*K
@@ -26,25 +26,25 @@ namespace qrd:
         end
 
 
-    procedure PrintMatrix(List(type:double, size=rows*cols) mat, int rows, int cols)
+    procedure PrintMatrix(List(type:double, size=rows*cols) mat, uint rows, uint cols)
     begin
-        foreach int i in 0..rows-1 do
-            foreach int j in 0..cols-1 do
+        foreach uint i in 0..rows-1 do
+            foreach uint j in 0..cols-1 do
                 print(mat[i * cols + j] + " ");
                 if((j+1) mod cols = 0) then println(""); end
             end
         end
     end
 
-    actor QRDecomposition(int rows, int cols) double InA ==> double OutQ, double OutR:
+    actor QRDecomposition(uint rows, uint cols) double InA ==> double OutQ, double OutR:
         // ========== Global Variables ==========
 
         // Size of the matrix
-        int sizeA = rows*cols;
+        uint sizeA = rows*cols;
 
         // Value used to track the number of elements received
         // from the input matrix A
-        int receivedA := 0;
+        uint receivedA := 0;
 
         // Temporary storage for the input matrix A
         List(type:double, size=sizeA) matA;
@@ -82,8 +82,8 @@ namespace qrd:
             action ==> OutQ:[1.0]
             guard OutQ[sizeA-1] = 0.0
             do
-                foreach int i in 0..rows-1 do
-                    foreach int j in 0..cols-1 do
+                foreach uint i in 0..rows-1 do
+                    foreach uint j in 0..cols-1 do
                         if(i = j) then
                             OutQ[i * cols + j] := 1.0;
                             stnd_basis[i * cols + j] := 1.0;
