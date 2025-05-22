@@ -66,7 +66,7 @@ mkdir -p "$TARGET_FOLDER/build"
 
 # Set minimum cmake ver
 find . -type f -not -name "*.sh" -not -path '*/\.*' | while read -r file; do
-  if grep -q 'cmake_minimum_required(VERSION 3.0)' "$file"; then
+  if grep -q 'cmake_minimum_required(VERSION 3.10)' "$file"; then
     sed -i 's/cmake_minimum_required(VERSION 3\.10)/cmake_minimum_required(VERSION 3.0)/g' "$file"
     echo "Modified cmake version for: $file"
   fi
