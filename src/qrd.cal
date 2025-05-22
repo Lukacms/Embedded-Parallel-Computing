@@ -286,10 +286,9 @@ namespace qrd:
 
     network Top() ==> :
         entities
-            sourceA = SourceA();
-            sourceB = SourceA();
-            matMultiplier = QRDecomposition(rows=M, cols=K);
+            sourceA = SourceA() { partition = "hw"; };
+            QRDec = QRDecomposition(rows=M, cols=K);
         structure
-            sourceA.OutA --> matMultiplier.InA;
+            sourceA.OutA --> QRDec.InA;
         end
 end
