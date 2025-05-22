@@ -26,15 +26,15 @@ namespace qrd:
         end
 
 
-    procedure PrintMatrix(List(type:double, size=rows*cols) mat, uint rows, uint cols)
-    begin
-        foreach uint i in 0..rows-1 do
-            foreach uint j in 0..cols-1 do
-                print(mat[i * cols + j] + " ");
-                if((j+1) mod cols = 0) then println(""); end
-            end
-        end
-    end
+    // procedure PrintMatrix(List(type:double, size=rows*cols) mat, uint rows, uint cols)
+    // begin
+    //     foreach uint i in 0..rows-1 do
+    //         foreach uint j in 0..cols-1 do
+    //             print(mat[i * cols + j] + " ");
+    //             if((j+1) mod cols = 0) then println(""); end
+    //         end
+    //     end
+    // end
 
     actor QRDecomposition(uint rows, uint cols) double InA ==> double OutQ, double OutR:
         // ========== Global Variables ==========
@@ -233,7 +233,7 @@ namespace qrd:
                     end
 
                     println("Matrix R:");
-                    PrintMatrix(OutR, rows, cols);
+                    // PrintMatrix(OutR, rows, cols);
 
                     // Check if R is upper triangular
                     is_upper_triangular := true;
@@ -272,13 +272,31 @@ namespace qrd:
             guard print_done = false, passes_done = rows
             do
                 println("Matrix A:");
-                PrintMatrix(matA, rows, cols);
+                // PrintMatrix(matA, rows, cols);
+                foreach uint i in 0..rows-1 do
+                    foreach uint j in 0..cols-1 do
+                        print(matA[i * cols + j] + " ");
+                        if((j+1) mod cols = 0) then println(""); end
+                    end
+                end
 
                 println("Matrix Q:");
-                PrintMatrix(OutQ, rows, cols);
+                // PrintMatrix(OutQ, rows, cols);
+                foreach uint i in 0..rows-1 do
+                    foreach uint j in 0..cols-1 do
+                        print(OutQ[i * cols + j] + " ");
+                        if((j+1) mod cols = 0) then println(""); end
+                    end
+                end
 
                 println("Matrix R:");
-                PrintMatrix(OutR, rows, cols);
+                // PrintMatrix(OutR, rows, cols);
+                foreach uint i in 0..rows-1 do
+                    foreach uint j in 0..cols-1 do
+                        print(OutR[i * cols + j] + " ");
+                        if((j+1) mod cols = 0) then println(""); end
+                    end
+                end
 
                 print_done := true;
             end
