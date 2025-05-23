@@ -49,9 +49,9 @@ namespace qrd:
         // ========== Global Variables ==========
 
         // Size of the matrix
-        uint rows = 0;
-        uint cols = 0;
-        uint sizeA = 0;
+        uint rows := 0;
+        uint cols := 0;
+        uint sizeA := 0;
 
         // Value used to track the number of elements received
         // from the input matrix A
