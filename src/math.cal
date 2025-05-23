@@ -1,4 +1,7 @@
 namespace math:
+    int M = 64;   // Max rows of matrix
+    int K = 64;   // Max columns of matrix
+    
     external function sqrt(double f) --> float end
 
     function my_fabs(double x) --> float:

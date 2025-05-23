@@ -1,0 +1,103 @@
+namespace parser:
+    import all io;
+    import all math;
+
+    uint(size=8) EOL = 10;
+    uint(size=8) DOT = 46;
+    uint(size=8) COMMA = 44;
+    uint(size=8) MINUS = 45;
+
+    // The matrix CSV file must end with a new line, otherwise this will give unexpected results
+    actor FileParser () uint(size=8) In ==> double OutA, uint OutM, uint OutK:
+        // Temp matrix
+        List(type:double, size=M*K) matA;
+
+        // Matrix size
+        uint rows := 0;
+        uint cols := 0;
+
+        // Flag to check if the number of rows is final
+        bool got_eol := false;
+
+        // Current index of the matrix
+        uint i := 0;
+
+        bool reading_fraction := false;
+        bool row_finished := false;
+        bool is_minus := false;
+        double fraction_factor := 0.1;
+
+        double value := 0.0;
+
+        int digit := 0;
+
+        // Flags to check if the matrix has been transmitted
+        bool tsize := false;
+        uint t_i := 0;
+
+        receive_char:
+            action In:[c] ==>
+            guard
+                i < M*K,
+                cols = 0 || rows < cols
+            do
+                if (c = MINUS) then
+                    is_minus := true;
+                end
+
+                if (c = DOT) then
+                    reading_fraction := true;
+                end
+
+                if (c = EOL || c = COMMA) then
+                    matA[i] := value;
+                    i := i + 1;
+
+                    value := 0.0;
+                    reading_fraction := false;
+                    is_minus := false;
+                    fraction_factor := 0.1;
+
+                    if (c = EOL) then
+                        rows := rows + 1;
+
+                        if (got_eol = false) then
+                            cols := i;
+                            got_eol := true;
+                        end
+                    end
+                end
+
+                if (c >= 48 && c <= 57) then
+                    digit := c - 48;
+                    if (reading_fraction = false) then
+                        value := value * 10 + digit;
+                    else
+                        value := value + digit * fraction_factor;
+                        fraction_factor := fraction_factor * 0.1;
+                    end
+                end
+            end
+    
+        transmit_size:
+            action ==> OutM:[rows], OutK:[cols]
+            guard 
+                rows > 0,
+                cols > 0,
+                rows = cols,
+                not tsize
+            do
+                tsize := true;
+            end
+
+        transmit_matrix:
+            action ==> OutA:[matA[t_i-1]]
+            guard
+                t_i < rows * cols,
+                tsize
+            do
+                t_i := t_i + 1;
+            end
+
+    end
+end

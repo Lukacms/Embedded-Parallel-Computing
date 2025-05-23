@@ -1,38 +1,38 @@
 namespace qrd:
     import all math;
 
-    int M = 64;   // M rows of matrix
-    int K = 64;   // K columns of matrix
+    import entity io.FileSource;
+    import entity parser.FileParser;
 
-    List(type:double, size=M*K) A = [
-        1,1,1,1,1,1,1,1,
-        2,2,2,2,2,2,2,2,
-        3,3,3,3,3,3,3,3,
-        4,4,4,4,4,4,4,4,
-        5,5,5,5,50,5,5,5,
-        6,6,6,6,6,6,6,6,
-        7,7,7,7,7,7,7,7,
-        8,8,8,8,8,8,8,9
-    ];
+    // List(type:double, size=M*K) A = [
+    //     1,1,1,1,1,1,1,1,
+    //     2,2,2,2,2,2,2,2,
+    //     3,3,3,3,3,3,3,3,
+    //     4,4,4,4,4,4,4,4,
+    //     5,5,5,5,50,5,5,5,
+    //     6,6,6,6,6,6,6,6,
+    //     7,7,7,7,7,7,7,7,
+    //     8,8,8,8,8,8,8,9
+    // ];
 
-    actor SourceA(uint rows, uint cols) ==> double OutA, uint OutM, uint OutK:
-        uint index_A := 0;
-        bool tsize := false;
+    // actor SourceA(uint rows, uint cols) ==> double OutA, uint OutM, uint OutK:
+    //     uint index_A := 0;
+    //     bool tsize := false;
 
-        transmit_size:
-            action ==> OutM:[rows], OutK:[cols]
-            guard not tsize
-            do
-                tsize := true;
-            end
+    //     transmit_size:
+    //         action ==> OutM:[rows], OutK:[cols]
+    //         guard not tsize
+    //         do
+    //             tsize := true;
+    //         end
         
-        transmit_data:
-            action ==> OutA:[A[index_A-1]]
-            guard tsize = true, index_A < rows * cols
-            do
-                index_A := index_A + 1;
-            end
-        end
+    //     transmit_data:
+    //         action ==> OutA:[A[index_A-1]]
+    //         guard tsize = true, index_A < rows * cols
+    //         do
+    //             index_A := index_A + 1;
+    //         end
+    //     end
 
 
     // procedure PrintMatrix(List(type:double, size=rows*cols) mat, uint rows, uint cols)
@@ -296,15 +296,17 @@ namespace qrd:
 
         end
 
-    actor DisplayResults() double InQ, double InR, uint InM, uint InK ==>:
+    actor DisplayResults() double InA, double InQ, double InR, uint InM, uint InK ==>:
         bool print_done := false;
 
         uint rows := 0;
         uint cols := 0;
 
+        uint receivedA := 0;
         uint receivedQ := 0;
         uint receivedR := 0;
 
+        List(type:double, size=M*K) matA;
         List(type:double, size=M*K) matQ;
         List(type:double, size=M*K) matR;
 
@@ -314,6 +316,15 @@ namespace qrd:
             do
                 rows := r;
                 cols := c;
+            end
+
+        receiveA:
+            action InA:[r] ==>
+            guard rows > 0, cols > 0
+            do
+                // Copy data from InA to matA
+                matA[receivedA] := r;
+                receivedA := receivedA + 1;
             end
 
         receiveQ:
@@ -336,8 +347,16 @@ namespace qrd:
 
         print_results:
             action ==>
-            guard rows > 0, cols > 0, receivedQ = rows*cols, receivedR = rows*cols, print_done = false
+            guard rows > 0, cols > 0, receivedA = rows*cols, receivedQ = rows*cols, receivedR = rows*cols, print_done = false
             do
+                println("Matrix A:");
+                foreach uint i in 0..rows-1 do
+                    foreach uint j in 0..cols-1 do
+                        print(matA[i * cols + j] + " ");
+                        if((j+1) mod cols = 0) then println(""); end
+                    end
+                end
+
                 println("Matrix Q:");
                 foreach uint i in 0..rows-1 do
                     foreach uint j in 0..cols-1 do
@@ -361,16 +380,23 @@ namespace qrd:
 
     network Top() ==> :
         entities
-            sourceA = SourceA(rows=8, cols=8);
+            fileSource = FileSource();
+            sourceA = FileParser();
             QRDec = QRDecomposition() { partition = "hw"; };
             printer = DisplayResults();
         structure
+            // Send file bytes to parser
+            fileSource.Out --> sourceA.In;
+
             // Send source A to QRDec
             sourceA.OutA --> QRDec.InA;
+
             // Send size of A to QRDec
             sourceA.OutM --> QRDec.InM;
             sourceA.OutK --> QRDec.InK;
 
+            // Send the input matrix A to printer
+            sourceA.OutA --> printer.InA;
             // Send the QR decomposition results to printer
             QRDec.OutQ --> printer.InQ;
             QRDec.OutR --> printer.InR;
