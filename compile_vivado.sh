@@ -24,7 +24,6 @@ export XILINX_XRT="/opt/xilinx/xrt"
 # Run streamblocks on it (first pass, multicore)
 SRC_FILES=$(find src/ -type f -name "*.cal" | tr '\n' ':')
 ./streamblocks-platforms/streamblocks multicore \
-    --set experimental-network-elaboration=on \
     --set partitioning=on \
     --source-path "$SRC_FILES" \
     --target-path "$TARGET_FOLDER" \
@@ -37,7 +36,6 @@ fi
 
 # Run streamblocks on it (second pass, vivado)
 ./streamblocks-platforms/streamblocks vivado-hls \
-    --set experimental-network-elaboration=on \
     --set partitioning=on \
     --source-path "$SRC_FILES" \
     --target-path "$TARGET_FOLDER" \
@@ -76,7 +74,7 @@ done
 cd "$TARGET_FOLDER/build" 
 cmake -DCMAKE_CXX_FLAGS="-w" .. -DHLS_CLOCK_PERIOD=3.3 -DFPGA_NAME=xcu200-fsgd2104-2-e -DPLATFORM=xilinx_u200_xdma_201830_2 -DUSE_VITIS=on -DCMAKE_BUILD_TYPE=Debug
 # Build
-cmake --build . --target PassThrough_kernel_xclbin -- -j 4
+cmake --build . --target Top_kernel_xclbin
 
 # Check if the build was successful
 if [ $? -ne 0 ]; then
