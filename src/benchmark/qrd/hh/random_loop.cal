@@ -2,12 +2,18 @@ namespace benchmark.qrd.hh.random_loop:
     import entity testing.SourceRandomLoop;
     import entity benchmark.PrintThroughput;
     import entity qrd.hh.QRDecomposition;
-    
+
+    uint rows = 8;
+    uint cols = 8;
+
+    // Set to 0 for an infinite loop
+    uint loops = 0;
+
     network Top() ==> :
         entities
-            source = SourceRandomLoop(rows = 64, cols = 64, loops = 0);
-            QRDec = QRDecomposition(rows = 64, cols = 64) { partition = "hw"; };
-            benchmark = PrintThroughput(seconds = 1);
+            source = SourceRandomLoop(rows = rows, cols = cols, loops = loops);
+            QRDec = QRDecomposition(rows = rows, cols = cols) { partition = "hw"; };
+            benchmark = PrintThroughput(matrixSize = (rows * cols), seconds = 1);
         structure
             // Send source to QRDec
             source.OutA --> QRDec.InA;

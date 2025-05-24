@@ -2,7 +2,9 @@ namespace benchmark:
     import all counters;
 
     // Simply calculates the throughput of inputs values received
-    actor PrintThroughput(uint(size=32) seconds) double In ==>:
+    // Matrix size is the total number of values used to represent a matrix
+    // If the matrix is 8x8, the matrixSize is 64
+    actor PrintThroughput(uint matrixSize, uint(size=32) seconds) double In ==>:
         uint(size=32) relativeStartTime;
 
         uint(size=64) tokenCounter;
@@ -29,13 +31,18 @@ namespace benchmark:
             if (currentTime - relativeStartTime > seconds * 1000) then
                 begin
                 var 
-                    double throuhgput
+                    double throuhgput,
+                    double meanTime
                 do
                     throuhgput := 1000 * (tokenCounter - lastTokenCounter) / (currentTime - relativeStartTime);
                     relativeStartTime := currentTime;
                     lastTokenCounter := tokenCounter;
 
-                    println("Throughput : " + throuhgput + " tokens/sec");
+                    println("Raw throughput : " + throuhgput + " tokens/sec");
+                    println("Matrices processed per second: " + throuhgput / matrixSize);
+                    meanTime := 1 / (throuhgput / matrixSize);
+                    println("Mean time for matrix decomposition: " + meanTime + " ms");
+
                 end    
             end
         end
