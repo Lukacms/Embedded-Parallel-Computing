@@ -1,0 +1,34 @@
+namespace qrd.hh:
+    import entity io.FileSource;
+    import entity display.DisplayResults;
+    import entity parser.FileParser;
+    import entity qrd.hh.QRDecomposition;
+    
+    network FromFile() ==> :
+        entities
+            fileSource = FileSource();
+            sourceA = FileParser();
+            QRDec = QRDecomposition() { partition = "hw"; };
+            printer = DisplayResults();
+
+        structure
+            // Send file bytes to parser
+            fileSource.Out --> sourceA.In;
+
+            // Send source A to QRDec
+            sourceA.OutA --> QRDec.InA;
+
+            // Send size of A to QRDec
+            sourceA.OutM --> QRDec.InM;
+            sourceA.OutK --> QRDec.InK;
+
+            // Send the input matrix A to printer
+            sourceA.OutA --> printer.InA;
+            // Send the QR decomposition results to printer
+            QRDec.OutQ --> printer.InQ;
+            QRDec.OutR --> printer.InR;
+            // Send the size of Q and R to printer as well            
+            sourceA.OutM --> printer.InM;
+            sourceA.OutK --> printer.InK;
+        end
+end

@@ -1,0 +1,85 @@
+namespace display:
+    import all io;
+    import all math;
+    
+    actor DisplayResults() double InA, double InQ, double InR, uint InM, uint InK ==>:
+        bool print_done := false;
+
+        uint rows := 0;
+        uint cols := 0;
+
+        uint receivedA := 0;
+        uint receivedQ := 0;
+        uint receivedR := 0;
+
+        List(type:double, size=M*K) matA;
+        List(type:double, size=M*K) matQ;
+        List(type:double, size=M*K) matR;
+
+        receive_size:
+            action InM:[r], InK:[c] ==>
+            guard rows = 0, cols = 0
+            do
+                rows := r;
+                cols := c;
+            end
+
+        receiveA:
+            action InA:[r] ==>
+            guard rows > 0, cols > 0
+            do
+                // Copy data from InA to matA
+                matA[receivedA] := r;
+                receivedA := receivedA + 1;
+            end
+
+        receiveQ:
+            action InQ:[r] ==>
+            guard rows > 0, cols > 0
+            do
+                // Copy data from InQ to matQ
+                matQ[receivedQ] := r;
+                receivedQ := receivedQ + 1;
+            end
+
+        receiveR:
+            action InR:[r] ==>
+            guard rows > 0, cols > 0
+            do
+                // Copy data from InR to matR
+                matR[receivedR] := r;
+                receivedR := receivedR + 1;
+            end
+
+        print_results:
+            action ==>
+            guard rows > 0, cols > 0, receivedA = rows*cols, receivedQ = rows*cols, receivedR = rows*cols, print_done = false
+            do
+                println("Matrix A:");
+                foreach uint i in 0..rows-1 do
+                    foreach uint j in 0..cols-1 do
+                        print(matA[i * cols + j] + " ");
+                        if((j+1) mod cols = 0) then println(""); end
+                    end
+                end
+
+                println("Matrix Q:");
+                foreach uint i in 0..rows-1 do
+                    foreach uint j in 0..cols-1 do
+                        print(matQ[i * cols + j] + " ");
+                        if((j+1) mod cols = 0) then println(""); end
+                    end
+                end
+
+                println("Matrix R:");
+                foreach uint i in 0..rows-1 do
+                    foreach uint j in 0..cols-1 do
+                        print(matR[i * cols + j] + " ");
+                        if((j+1) mod cols = 0) then println(""); end
+                    end
+                end
+
+                print_done := true;
+            end
+        end
+end

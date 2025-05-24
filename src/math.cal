@@ -4,6 +4,10 @@ namespace math:
     
     external function sqrt(double f) --> float end
 
+    external function random(float low, float high) --> float end
+
+    external function randInt(int n) --> int end
+
     function my_fabs(double x) --> float:
         if(x < 0.0) then
             -1.0 * x

@@ -1,0 +1,54 @@
+namespace testing:
+    import all math;
+
+    List(type:double, size=M*K) A = [
+        1,1,1,1,1,1,1,1,
+        2,2,2,2,2,2,2,2,
+        3,3,3,3,3,3,3,3,
+        4,4,4,4,4,4,4,4,
+        5,5,5,5,50,5,5,5,
+        6,6,6,6,6,6,6,6,
+        7,7,7,7,7,7,7,7,
+        8,8,8,8,8,8,8,9
+    ];
+
+    actor SourceA(uint rows, uint cols) ==> double OutA, uint OutM, uint OutK:
+        uint index_A := 0;
+        bool tsize := false;
+
+        transmit_size:
+            action ==> OutM:[rows], OutK:[cols]
+            guard not tsize
+            do
+                tsize := true;
+            end
+        
+        transmit_data:
+            action ==> OutA:[A[index_A-1]]
+            guard tsize = true, index_A < rows * cols
+            do
+                index_A := index_A + 1;
+            end
+        end
+
+    actor SourceRandom(uint rows, uint cols) ==> double OutA, uint OutM, uint OutK:
+        uint index := 0;
+        bool tsize := false;
+
+        transmit_size:
+            action ==> OutM:[rows], OutK:[cols]
+            guard not tsize
+            do
+                tsize := true;
+            end
+        
+        transmit_data:
+            action ==> OutA:[value]
+            guard tsize = true, index < rows * cols
+            var
+                value := random(0.0, 100.0)
+            do
+                index := index + 1;
+            end
+        end
+end
