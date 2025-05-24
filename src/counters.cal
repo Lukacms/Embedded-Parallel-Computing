@@ -1,0 +1,7 @@
+namespace counters:
+
+    external function timeMSec() --> uint(size=32) end
+
+    external function timeSec() --> uint(size=32) end
+
+end

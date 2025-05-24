@@ -3,12 +3,12 @@ namespace testing:
 
     List(type:double, size=M*K) A = [
         1,1,1,1,1,1,1,1,
-        2,2,2,2,2,2,2,2,
+        2,2,2,2,2,-2,2,2,
         3,3,3,3,3,3,3,3,
-        4,4,4,4,4,4,4,4,
+        -1,4,4,4,4,4,-4,4,
         5,5,5,5,50,5,5,5,
         6,6,6,6,6,6,6,6,
-        7,7,7,7,7,7,7,7,
+        -6,7,7,7,7,7,7,7,
         8,8,8,8,8,8,8,9
     ];
 
@@ -48,6 +48,40 @@ namespace testing:
             var
                 value := random(0.0, 100.0)
             do
+                index := index + 1;
+            end
+        end
+
+    actor SourceALoop(uint rows, uint cols, uint loops) ==> double OutA:
+        uint index_A := 0;
+        uint loop_count := 0;
+        
+        transmit_data:
+            action ==> OutA:[A[index_A-1]]
+            guard loops = 0 || loop_count < loops
+            do
+                if index_A + 1 > rows * cols then
+                    index_A := 0;
+                    loop_count := loop_count + 1;
+                end
+                index_A := index_A + 1;
+            end
+        end
+
+    actor SourceRandomLoop(uint rows, uint cols, uint loops) ==> double OutA:
+        uint index := 0;
+        uint loop_count := 0;
+
+        transmit_data:
+            action ==> OutA:[value]
+            guard loops = 0 || loop_count <= loops
+            var
+                value := random(0.0, 100.0)
+            do
+                if index > rows * cols then
+                    index := 0;
+                    loop_count := loop_count + 1;
+                end
                 index := index + 1;
             end
         end

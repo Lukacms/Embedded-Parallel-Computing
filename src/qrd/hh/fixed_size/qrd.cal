@@ -1,0 +1,230 @@
+namespace qrd.hh:
+    import all math;
+
+    actor QRDecomposition(uint rows, uint cols) double InA ==> double OutA, double OutQ, double OutR:
+        // ========== Global Variables ==========
+
+        // Size of the matrix
+        uint sizeA := rows * cols;
+
+        // Value used to track the number of elements received
+        // from the input matrix A
+        uint receivedA := 0;
+
+        // Value used to track the number of elements sent
+        // to the output matrices Q and R
+        uint sent := 0;
+
+        // Temporary storage for the input matrix A
+        List(type:double, size=M*K) matA;
+        // Temporary storage for the output matrices Q and R
+        List(type:double, size=M*K) matQ;
+        List(type:double, size=M*K) matR;
+
+        // Temporary storage for the stnd_basis matrix
+        List(type:double, size=M*K) stnd_basis;
+
+        // Passes done for decomposition
+        int passes_done := 0;
+
+        // Flag to check if the transpose is done (which means QR is done as well)
+        bool transpose_done := false;
+
+        // ========== Actions ==========
+
+        // Copy the input matrix A to the temporary storage
+        receive_A:
+            action InA:[r] ==>
+            guard receivedA < sizeA
+            do
+                // Copy data from InA to matA
+                matA[receivedA] := r;
+                // Copy data from InA to matR (R should be the same as A to start)
+                matR[receivedA] := r;
+                receivedA := receivedA + 1;
+            end
+
+        // Perform the householder transformation
+        qr_decomposition:
+            action ==>
+            guard receivedA = sizeA, passes_done < rows
+            var
+                List(type:double, size=M) x,
+                List(type:double, size=M) basis,
+
+                double norm,
+                double alpha,
+
+                List(type:double, size=M) u,
+                double norm_u_squared,
+
+                List(type:double, size=M*K) H,
+                List(type:double, size=M*M) outer_product,
+                
+                List(type:double, size=M*K) temp_mat,
+                double sum,
+
+                bool is_upper_triangular := true,
+
+                List(type:double, size=M*K) Q_transposed
+            do
+                // Init Q and stnd_basis
+                if (passes_done = 0) then
+                    foreach int i in 0..rows-1 do
+                        foreach int j in 0..cols-1 do
+                            if (i = j) then
+                                matQ[i * cols + j] := 1.0;
+                                stnd_basis[i * cols + j] := 1.0;
+                            else
+                                matQ[i * cols + j] := 0.0;
+                                stnd_basis[i * cols + j] := 0.0;
+                            end
+                        end
+                    end
+                end
+                
+                // Initialize x
+                foreach int i in 0..rows-1 do
+                    x[i] := matR[i * cols + passes_done];
+                end
+                foreach int i in 0..passes_done-1 do
+                    x[i] := 0.0;
+                end
+                
+                // Initialize basis
+                foreach int i in 0..rows-1 do
+                    basis[i] := stnd_basis[i * cols + passes_done];
+                end
+
+                // Compute norm
+                norm := 0.0;
+                foreach int i in 0..rows-1 do
+                    norm := norm + x[i] * x[i];
+                end
+                norm := sqrt(norm);
+
+                // Compute alpha 
+                if (x[passes_done] >= 0) then
+                    alpha := -norm;
+                else
+                    alpha := norm;
+                end
+
+                // Initialize U
+                foreach int i in 0..rows-1 do
+                    u[i] := x[i] - alpha * basis[i];
+                end
+
+                // Compute norm of U
+                norm_u_squared := 0.0;
+                foreach int i in 0..rows-1 do
+                    norm_u_squared := norm_u_squared + u[i] * u[i];
+                end
+
+                // If norm_u_squared is 0, then we skip the transformation
+                if (my_fabs(norm_u_squared) < 1.0e-7) then
+                    passes_done := passes_done + 1;
+                else
+                    // Householder transformation
+                    // Init H
+                    foreach int i in 0..rows-1 do
+                        foreach int j in 0..rows-1 do
+                            if (i = j) then
+                                H[i * rows + j] := 1.0;
+                            else
+                                H[i * rows + j] := 0.0;
+                            end
+                        end
+                    end
+                    // Compute outer product
+                    foreach int i in 0..rows-1 do
+                        foreach int j in 0..cols-1 do
+                            outer_product[i * rows + j] := u[i] * u[j];
+                        end
+                    end
+
+                    // Compute H
+                    foreach int i in 0..(rows*cols)-1 do
+                        H[i] := H[i] - (2.0 * outer_product[i] / norm_u_squared);
+                    end
+                    // Q = H * Q
+                    foreach int i in 0..rows-1 do
+                        foreach int j in 0..cols-1 do
+                            sum := 0.0;
+                            foreach int k in 0..rows-1 do
+                                sum := sum + H[i * rows + k] * matQ[k * cols + j];
+                            end
+                            temp_mat[i * cols + j] := sum;
+                        end
+                    end
+                    // Copy TempQ to matQ
+                    foreach int i in 0..(rows*cols)-1 do
+                        matQ[i] := temp_mat[i];
+                    end
+
+                    // R = H * R
+                    foreach int i in 0..rows-1 do
+                        foreach int j in 0..cols-1 do
+                            sum := 0.0;
+                            foreach int k in 0..rows-1 do
+                                sum := sum + H[i * rows + k] * matR[k * cols + j];
+                            end
+                            temp_mat[i * cols + j] := sum;
+                        end
+                    end
+                    // Copy TempR to matR
+                    foreach int i in 0..(rows*cols)-1 do
+                        matR[i] := num_s(temp_mat[i]);
+                    end
+
+                    // Check if R is upper triangular
+                    is_upper_triangular := true;
+                    foreach int i in 0..rows-1 do
+                        foreach int j in 0..i-1 do
+                            if (matR[i * cols + j] != 0.0) then
+                                is_upper_triangular := false;
+                            end
+                        end
+                    end
+
+                    if (is_upper_triangular) then
+                        // Stop execution if R is upper triangular
+                        passes_done := rows;
+                    else
+                        passes_done := passes_done + 1;
+                    end
+                end
+
+                // If passes_done is equal to rows, then we are done
+                // so we need to transpose Q
+                if (passes_done = rows) then
+                    foreach int i in 0..rows-1 do
+                        foreach int j in 0..cols-1 do
+                            Q_transposed[j * rows + i] := matQ[i * cols + j];
+                        end
+                    end
+                    foreach int i in 0..(rows*cols)-1 do
+                        matQ[i] := Q_transposed[i];
+                    end
+                    transpose_done := true;
+                end
+            end
+
+        // Send the output matrices Q and R
+        transmit:
+            action ==> OutA:[matA[sent-1]], OutQ:[matQ[sent-1]], OutR:[matR[sent-1]]
+            guard passes_done >= rows, transpose_done = true
+            do
+                sent := sent + 1;
+
+                // If everything is sent, reset the actor
+                if ((sent - 1) = (rows * cols)) then
+                    receivedA := 0;
+                    sent := 1;
+                    passes_done := 0;
+                    transpose_done := false;
+                end
+            end
+
+        end
+end

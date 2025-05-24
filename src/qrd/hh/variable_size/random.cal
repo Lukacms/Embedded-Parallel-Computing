@@ -1,20 +1,14 @@
-namespace qrd.hh:
-    import entity io.FileSource;
-    import entity display.DisplayResults;
-    import entity parser.FileParser;
-    import entity qrd.hh.QRDecomposition;
+namespace qrd.hh.from_random:
+    import entity testing.SourceRandom;
+    import entity display.DisplayResultsWithSize;
+    import entity qrd.hh.QRDecompositionVariableSize;
     
-    network FromFile() ==> :
+    network Top() ==> :
         entities
-            fileSource = FileSource();
-            sourceA = FileParser();
-            QRDec = QRDecomposition() { partition = "hw"; };
-            printer = DisplayResults();
-
+            sourceA = SourceRandom(rows = 8, cols = 8);
+            QRDec = QRDecompositionVariableSize() { partition = "hw"; };
+            printer = DisplayResultsWithSize();
         structure
-            // Send file bytes to parser
-            fileSource.Out --> sourceA.In;
-
             // Send source A to QRDec
             sourceA.OutA --> QRDec.InA;
 

@@ -2,7 +2,75 @@ namespace display:
     import all io;
     import all math;
     
-    actor DisplayResults() double InA, double InQ, double InR, uint InM, uint InK ==>:
+    actor DisplayResults(uint rows, uint cols) double InA, double InQ, double InR ==>:
+        uint receivedA := 0;
+        uint receivedQ := 0;
+        uint receivedR := 0;
+
+        List(type:double, size=rows * cols) matA;
+        List(type:double, size=rows * cols) matQ;
+        List(type:double, size=rows * cols) matR;
+
+        receiveA:
+            action InA:[r] ==>
+            do
+                // Copy data from InA to matA
+                matA[receivedA] := r;
+                receivedA := receivedA + 1;
+                if (receivedA = rows * cols) then
+                    receivedA := 0; // Reset for next use
+
+                    println("Matrix A:");
+                    foreach uint i in 0..rows-1 do
+                        foreach uint j in 0..cols-1 do
+                            print(matA[i * cols + j] + " ");
+                            if((j+1) mod cols = 0) then println(""); end
+                        end
+                    end
+                end
+
+            end
+
+        receiveQ:
+            action InQ:[r] ==>
+            do
+                // Copy data from InQ to matQ
+                matQ[receivedQ] := r;
+                receivedQ := receivedQ + 1;
+                if (receivedQ = rows * cols) then
+                    receivedQ := 0; // Reset for next use
+
+                    println("Matrix Q:");
+                    foreach uint i in 0..rows-1 do
+                        foreach uint j in 0..cols-1 do
+                            print(matQ[i * cols + j] + " ");
+                            if((j+1) mod cols = 0) then println(""); end
+                        end
+                    end
+                end
+            end
+
+        receiveR:
+            action InR:[r] ==>
+            do
+                // Copy data from InR to matR
+                matR[receivedR] := r;
+                receivedR := receivedR + 1;
+                if (receivedR = rows * cols) then
+                    receivedR := 0; // Reset for next use
+
+                    println("Matrix R:");
+                    foreach uint i in 0..rows-1 do
+                        foreach uint j in 0..cols-1 do
+                            print(matR[i * cols + j] + " ");
+                            if((j+1) mod cols = 0) then println(""); end
+                        end
+                    end
+                end
+            end
+        end
+
+     actor DisplayResultsWithSize() double InA, double InQ, double InR, uint InM, uint InK ==>:
         bool print_done := false;
 
         uint rows := 0;
