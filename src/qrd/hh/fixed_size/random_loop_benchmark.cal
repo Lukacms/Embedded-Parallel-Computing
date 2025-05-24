@@ -1,0 +1,18 @@
+namespace qrd.hh.from_random_loop_benchmark:
+    import entity testing.SourceRandomLoop;
+    import entity testing.ThroughputBenchmark;
+    import entity qrd.hh.QRDecomposition;
+    
+    network BenchmarkTop() ==> :
+        entities
+            source = SourceRandomLoop(rows = 64, cols = 64, loops = 0);
+            QRDec = QRDecomposition(rows = 64, cols = 64) { partition = "hw"; };
+            benchmark = ThroughputBenchmark(seconds = 1);
+        structure
+            // Send source to QRDec
+            source.OutA --> QRDec.InA;
+
+            // Send input data to benchmark
+            QRDec.OutA --> benchmark.In;
+        end
+end
