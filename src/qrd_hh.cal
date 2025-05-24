@@ -1,4 +1,4 @@
-namespace qrd:
+namespace qrd_hh:
     import all math;
 
     import entity io.FileSource;
