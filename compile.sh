@@ -15,6 +15,10 @@ fi
 # Target folder will be the name of the .cal file without the extension, 
 TARGET_FOLDER="out"
 
+# Network name without namespaces (split by dots and get last part)
+NETWORK_NAME="${1##*.}"
+echo "Network name: $NETWORK_NAME"
+
 # Run streamblocks on it
 SRC_FILES=$(find src/ -type f -name "*.cal" | tr '\n' ':')
 ./streamblocks-platforms/streamblocks multicore \

@@ -15,6 +15,10 @@ fi
 # Target folder will be the name of the .cal file without the extension, 
 TARGET_FOLDER="out"
 
+# Network name without namespaces (split by dots and get last part)
+NETWORK_NAME="${1##*.}"
+echo "Network name: $NETWORK_NAME"
+
 # Path to Vivado / Vitis
 # Change if not running on sekhmet
 source /opt/xilinx/Vitis/2020.2/settings64.sh
@@ -74,7 +78,7 @@ done
 cd "$TARGET_FOLDER/build" 
 cmake -DCMAKE_CXX_FLAGS="-w" .. -DHLS_CLOCK_PERIOD=3.3 -DFPGA_NAME=xcu200-fsgd2104-2-e -DPLATFORM=xilinx_u200_xdma_201830_2 -DUSE_VITIS=on -DCMAKE_BUILD_TYPE=Debug
 # Build
-cmake --build . --target Top_kernel_xclbin
+cmake --build . --target "${NETWORK_NAME}_kernel_xclbin"
 
 # Check if the build was successful
 if [ $? -ne 0 ]; then
