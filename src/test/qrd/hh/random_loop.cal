@@ -1,11 +1,11 @@
-namespace qrd.hh.from_source_a_test:
-    import entity testing.SourceALoop;
+namespace test.qrd.hh.random_loop:
+    import entity testing.SourceRandomLoop;
     import entity display.DisplayResults;
     import entity qrd.hh.QRDecomposition;
     
     network Top() ==> :
         entities
-            source = SourceALoop(rows = 8, cols = 8, loops = 3);
+            source = SourceRandomLoop(rows = 8, cols = 8, loops = 2);
             QRDec = QRDecomposition(rows = 8, cols = 8) { partition = "hw"; };
             printer = DisplayResults(rows = 8, cols = 8);
         structure

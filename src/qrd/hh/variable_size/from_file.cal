@@ -1,7 +1,7 @@
 namespace qrd.hh:
     import entity io.FileSource;
     import entity display.DisplayResultsWithSize;
-    import entity parser.FileParser;
+    import entity matrix.parser.FileParser;
     import entity qrd.hh.QRDecompositionVariableSize;
     
     network FromFile() ==> :

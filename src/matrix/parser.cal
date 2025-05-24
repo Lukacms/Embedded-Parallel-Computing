@@ -1,4 +1,4 @@
-namespace parser:
+namespace matrix.parser:
     import all io;
     import all math;
 
