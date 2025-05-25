@@ -74,15 +74,65 @@ namespace testing:
 
         transmit_data:
             action ==> OutA:[value]
-            guard loops = 0 || loop_count <= loops
+            guard loops = 0 || loop_count < loops
             var
                 value := random(0.0, 100.0)
             do
-                if index > rows * cols then
+                if index + 1 > rows * cols then
                     index := 0;
                     loop_count := loop_count + 1;
                 end
                 index := index + 1;
+            end
+        end
+
+    actor FourSplitter(uint change_every) double In ==> double Out1, double Out2, double Out3, double Out4:
+        uint index := 0;
+
+        transmit_a:
+            action In:[value] ==> Out1:[value]
+            guard (index / change_every) mod 4 = 0
+            do
+                index := index + 1;
+            end
+
+        transmit_b:
+            action In:[value] ==> Out2:[value]
+            guard (index / change_every) mod 4 = 1
+            do
+                index := index + 1;
+            end
+
+        transmit_c:
+            action In:[value] ==> Out3:[value]
+            guard (index / change_every) mod 4 = 2
+            do
+                index := index + 1;
+            end
+
+        transmit_d:
+            action In:[value] ==> Out4:[value]
+            guard (index / change_every) mod 4 = 3
+            do
+                index := index + 1;
+            end
+        end
+
+    actor FourMerger() double InA, double InB, double InC, double InD ==> double Out:
+        transmit_a:
+            action InA:[value] ==> Out:[value]
+            end
+
+        transmit_b:
+            action InB:[value] ==> Out:[value]
+            end
+
+        transmit_c:
+            action InC:[value] ==> Out:[value]
+            end
+
+        transmit_d:
+            action InD:[value] ==> Out:[value]
             end
         end
 end

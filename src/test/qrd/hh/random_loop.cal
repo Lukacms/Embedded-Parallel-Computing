@@ -2,12 +2,18 @@ namespace test.qrd.hh.random_loop:
     import entity testing.SourceRandomLoop;
     import entity display.DisplayResults;
     import entity qrd.hh.QRDecomposition;
+
+    uint rows = 8;
+    uint cols = 8;
+
+    // Set to 0 for an infinite loop
+    uint loops = 3;
     
     network Top() ==> :
         entities
-            source = SourceRandomLoop(rows = 8, cols = 8, loops = 2);
-            QRDec = QRDecomposition(rows = 8, cols = 8) { partition = "hw"; };
-            printer = DisplayResults(rows = 8, cols = 8);
+            source = SourceRandomLoop(rows = rows, cols = cols, loops = loops);
+            QRDec = QRDecomposition(rows = rows, cols = cols) { partition = "hw"; };
+            printer = DisplayResults(rows = rows, cols = cols);
         structure
             // Send source to QRDec
             source.OutA --> QRDec.InA;

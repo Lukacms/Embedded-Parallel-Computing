@@ -1,0 +1,44 @@
+namespace benchmark.qrd.hh.random_loop_parallel:
+    import entity testing.FourSplitter; 
+    import entity testing.FourMerger;
+    import entity testing.SourceRandomLoop;
+    import entity benchmark.PrintThroughput;
+    import entity qrd.hh.QRDecomposition;
+
+    uint rows = 8;
+    uint cols = 8;
+
+    // Set to 0 for an infinite loop
+    uint loops = 0;
+
+    network Top() ==> :
+        entities
+            source = SourceRandomLoop(rows = rows, cols = cols, loops = loops);
+            splitter = FourSplitter(change_every = (rows * cols));
+            QRDec1 = QRDecomposition(rows = rows, cols = cols) { partition = "hw"; };
+            QRDec2 = QRDecomposition(rows = rows, cols = cols) { partition = "hw"; };
+            QRDec3 = QRDecomposition(rows = rows, cols = cols) { partition = "hw"; };
+            QRDec4 = QRDecomposition(rows = rows, cols = cols) { partition = "hw"; };
+            // For benchmarking, only one merger is needed, we just want to know the throughput
+            merger = FourMerger();
+            benchmark = PrintThroughput(matrixSize = (rows * cols), seconds = 1);
+        structure
+            // Send source to splitter
+            source.OutA --> splitter.In;
+
+            // Split input data into four parts
+            splitter.Out1 --> QRDec1.InA;
+            splitter.Out2 --> QRDec2.InA;
+            splitter.Out3 --> QRDec3.InA;
+            splitter.Out4 --> QRDec4.InA;
+
+            // Send output data to merger
+            QRDec1.OutQ --> merger.InA;
+            QRDec2.OutQ --> merger.InB;
+            QRDec3.OutQ --> merger.InC;
+            QRDec4.OutQ --> merger.InD;
+
+            // Send merger output to benchmark
+            merger.Out --> benchmark.In;
+        end
+end

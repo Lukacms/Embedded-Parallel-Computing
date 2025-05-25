@@ -1,0 +1,54 @@
+namespace test.qrd.hh.random_loop_parallel:
+    import entity testing.FourSplitter;
+    import entity testing.SourceRandomLoop;
+    import entity display.DisplayResults;
+    import entity qrd.hh.QRDecomposition;
+
+    uint rows = 8;
+    uint cols = 8;
+
+    // Set to 0 for an infinite loop
+    uint loops = 3;
+    
+    network Top() ==> :
+        entities
+            source = SourceRandomLoop(rows = rows, cols = cols, loops = loops);
+            splitter = FourSplitter(change_every = (rows * cols));
+
+            QRDec1 = QRDecomposition(rows = rows, cols = cols) { partition = "hw"; };
+            QRDec2 = QRDecomposition(rows = rows, cols = cols) { partition = "hw"; };
+            QRDec3 = QRDecomposition(rows = rows, cols = cols) { partition = "hw"; };
+            QRDec4 = QRDecomposition(rows = rows, cols = cols) { partition = "hw"; };
+
+            printer1 = DisplayResults(rows = rows, cols = cols);
+            printer2 = DisplayResults(rows = rows, cols = cols);
+            printer3 = DisplayResults(rows = rows, cols = cols);
+            printer4 = DisplayResults(rows = rows, cols = cols);
+        structure
+            // Send source to splitter
+            source.OutA --> splitter.In;
+
+            // Split input data into four parts
+            splitter.Out1 --> QRDec1.InA;
+            splitter.Out2 --> QRDec2.InA;
+            splitter.Out3 --> QRDec3.InA;
+            splitter.Out4 --> QRDec4.InA;
+
+            // Send the results to printer
+            QRDec1.OutA --> printer1.InA;
+            QRDec1.OutQ --> printer1.InQ;
+            QRDec1.OutR --> printer1.InR;
+
+            QRDec2.OutA --> printer2.InA;
+            QRDec2.OutQ --> printer2.InQ;
+            QRDec2.OutR --> printer2.InR;
+
+            QRDec3.OutA --> printer3.InA;
+            QRDec3.OutQ --> printer3.InQ;
+            QRDec3.OutR --> printer3.InR;
+
+            QRDec4.OutA --> printer4.InA;
+            QRDec4.OutQ --> printer4.InQ;
+            QRDec4.OutR --> printer4.InR;
+        end
+end

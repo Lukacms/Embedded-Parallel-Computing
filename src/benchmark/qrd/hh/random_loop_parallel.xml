@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	<partitioning>
+		<partition id="0" scheduling="ROUND_ROBIN">
+			<instance id="source"/>
+			<instance id="splitter"/>
+		</partition>
+		<partition id="1" scheduling="ROUND_ROBIN">
+			<instance id="QRDec1"/>
+		</partition>
+		<partition id="2" scheduling="ROUND_ROBIN">
+			<instance id="QRDec2"/>
+		</partition>
+		<partition id="3" scheduling="ROUND_ROBIN">
+			<instance id="QRDec3"/>
+		</partition>
+		<partition id="4" scheduling="ROUND_ROBIN">
+			<instance id="QRDec4"/>
+		</partition>
+		<partition id="5" scheduling="ROUND_ROBIN">
+			<instance id="merger"/>
+			<instance id="benchmark"/>
+		</partition>
+	</partitioning>
+	<connections>
+		<fifo-connection source="source" source-port="OutA" target="splitter" target-port="In" size="4096" token-size="8"/>
+		<fifo-connection source="splitter" source-port="Out1" target="QRDec1" target-port="InA" size="4096" token-size="8"/>
+		<fifo-connection source="splitter" source-port="Out2" target="QRDec2" target-port="InA" size="4096" token-size="8"/>
+		<fifo-connection source="splitter" source-port="Out3" target="QRDec3" target-port="InA" size="4096" token-size="8"/>
+		<fifo-connection source="splitter" source-port="Out4" target="QRDec4" target-port="InA" size="4096" token-size="8"/>
+		<fifo-connection source="QRDec1" source-port="OutQ" target="merger" target-port="InA" size="4096" token-size="8"/>
+		<fifo-connection source="QRDec2" source-port="OutQ" target="merger" target-port="InB" size="4096" token-size="8"/>
+		<fifo-connection source="QRDec3" source-port="OutQ" target="merger" target-port="InC" size="4096" token-size="8"/>
+		<fifo-connection source="QRDec4" source-port="OutQ" target="merger" target-port="InD" size="4096" token-size="8"/>
+		<fifo-connection source="merger" source-port="Out" target="benchmark" target-port="In" size="4096" token-size="8"/>
+	</connections>
+</configuration>

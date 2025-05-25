@@ -207,23 +207,27 @@ namespace qrd.hh:
                         matQ[i] := Q_transposed[i];
                     end
                     transpose_done := true;
+                    sent := 0;
                 end
             end
 
         // Send the output matrices Q and R
         transmit:
             action ==> OutA:[matA[sent-1]], OutQ:[matQ[sent-1]], OutR:[matR[sent-1]]
-            guard passes_done >= rows, transpose_done = true
+            guard passes_done >= rows, transpose_done = true, sent < (rows * cols)
             do
                 sent := sent + 1;
+            end
 
-                // If everything is sent, reset the actor
-                if ((sent - 1) = (rows * cols)) then
-                    receivedA := 0;
-                    sent := 1;
-                    passes_done := 0;
-                    transpose_done := false;
-                end
+        reset:
+            action ==>
+            guard sent = (rows * cols)
+            do
+                // Reset all variables for the next decomposition
+                receivedA := 0;
+                sent := 0;
+                passes_done := 0;
+                transpose_done := false;
             end
 
         end
