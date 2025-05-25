@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	<partitioning>
+		<partition id="0" scheduling="ROUND_ROBIN">
+			<instance id="source"/>
+			<instance id="splitter"/>
+		</partition>
+		<partition id="1" scheduling="ROUND_ROBIN">
+			<instance id="QRDec1"/>
+		</partition>
+		<partition id="2" scheduling="ROUND_ROBIN">
+			<instance id="QRDec2"/>
+		</partition>
+		<partition id="3" scheduling="ROUND_ROBIN">
+			<instance id="QRDec3"/>
+		</partition>
+		<partition id="4" scheduling="ROUND_ROBIN">
+			<instance id="QRDec4"/>
+		</partition>
+		<partition id="5" scheduling="ROUND_ROBIN">
+			<instance id="printer1"/>
+			<instance id="printer2"/>
+			<instance id="printer3"/>
+			<instance id="printer4"/>
+		</partition>
+	</partitioning>
+	<connections>
+		<fifo-connection source="source" source-port="OutA" target="splitter" target-port="In" size="4096" token-size="8"/>
+		<fifo-connection source="splitter" source-port="Out1" target="QRDec1" target-port="InA" size="4096" token-size="8"/>
+		<fifo-connection source="splitter" source-port="Out2" target="QRDec2" target-port="InA" size="4096" token-size="8"/>
+		<fifo-connection source="splitter" source-port="Out3" target="QRDec3" target-port="InA" size="4096" token-size="8"/>
+		<fifo-connection source="splitter" source-port="Out4" target="QRDec4" target-port="InA" size="4096" token-size="8"/>
+		<fifo-connection source="QRDec1" source-port="OutA" target="printer1" target-port="InA" size="4096" token-size="8"/>
+		<fifo-connection source="QRDec1" source-port="OutQ" target="printer1" target-port="InQ" size="4096" token-size="8"/>
+		<fifo-connection source="QRDec1" source-port="OutR" target="printer1" target-port="InR" size="4096" token-size="8"/>
+		<fifo-connection source="QRDec2" source-port="OutA" target="printer2" target-port="InA" size="4096" token-size="8"/>
+		<fifo-connection source="QRDec2" source-port="OutQ" target="printer2" target-port="InQ" size="4096" token-size="8"/>
+		<fifo-connection source="QRDec2" source-port="OutR" target="printer2" target-port="InR" size="4096" token-size="8"/>
+		<fifo-connection source="QRDec3" source-port="OutA" target="printer3" target-port="InA" size="4096" token-size="8"/>
+		<fifo-connection source="QRDec3" source-port="OutQ" target="printer3" target-port="InQ" size="4096" token-size="8"/>
+		<fifo-connection source="QRDec3" source-port="OutR" target="printer3" target-port="InR" size="4096" token-size="8"/>
+		<fifo-connection source="QRDec4" source-port="OutA" target="printer4" target-port="InA" size="4096" token-size="8"/>
+		<fifo-connection source="QRDec4" source-port="OutQ" target="printer4" target-port="InQ" size="4096" token-size="8"/>
+		<fifo-connection source="QRDec4" source-port="OutR" target="printer4" target-port="InR" size="4096" token-size="8"/>
+	</connections>
+</configuration>
