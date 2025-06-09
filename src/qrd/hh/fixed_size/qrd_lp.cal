@@ -7,24 +7,16 @@ namespace qrd_lp.hh:
         // Size of the matrix
         uint sizeA = rows * cols;
 
-        // Temporary storage for the input matrix A
-        List(type:double, size=M*K) matA;
-        // Temporary storage for the output matrices Q and R
-        List(type:double, size=M*K) matQ;
-        List(type:double, size=M*K) matR;
-
-        // Temporary storage for the stnd_basis matrix
-        List(type:double, size=M*K) stnd_basis;
-
-        // Flag to check if the transpose is done (which means QR is done as well)
-        bool transpose_done := false;
-
         // ========== Actions ==========
 
         // Perform the householder transformation
         qr_decomposition:
             action InA:[a] repeat sizeA ==> OutA:[a] repeat sizeA, OutQ:[q] repeat sizeA, OutR:[r] repeat sizeA
             var
+                List(type:double, size=M*K) matQ,
+                List(type:double, size=M*K) matR,
+
+                List(type:double, size=M*K) stnd_basis,
 
                 float[sizeA] q,
                 float[sizeA] r,
@@ -181,7 +173,7 @@ namespace qrd_lp.hh:
                     end
                 end
 
-                // Transpose Q
+                // Transpose and send Q
                 foreach int i in 0..rows-1 do
                     foreach int j in 0..cols-1 do
                         q[j * rows + i] := matQ[i * cols + j];
