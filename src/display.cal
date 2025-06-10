@@ -15,7 +15,7 @@ namespace display:
             action InA:[r] ==>
             do
                 // Copy data from InA to matA
-                println("Received value: " + r + " at index " + receivedA);
+                // println("Received value: " + r + " at index " + receivedA);
 
                 matA[receivedA] := r;
                 receivedA := receivedA + 1;
@@ -37,7 +37,7 @@ namespace display:
             action InQ:[r] ==>
             do
                 // Copy data from InQ to matQ
-                println("Received value: " + r + " at index " + receivedQ);
+                // println("Received value: " + r + " at index " + receivedQ);
                 
                 matQ[receivedQ] := r;
                 receivedQ := receivedQ + 1;

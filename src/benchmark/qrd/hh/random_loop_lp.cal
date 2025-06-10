@@ -3,8 +3,8 @@ namespace benchmark.qrd_lp.hh.random_loop:
     import entity benchmark.PrintThroughput;
     import entity qrd_lp.hh.QRDecomposition;
 
-    uint rows = 8;
-    uint cols = 8;
+    uint rows = 4;
+    uint cols = 4;
 
     // Set to 0 for an infinite loop
     uint loops = 0;
