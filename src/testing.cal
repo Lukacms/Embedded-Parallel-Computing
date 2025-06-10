@@ -48,6 +48,8 @@ namespace testing:
             var
                 value := random(0.0, 100.0)
             do
+                println("Send " + value + " at index " + index);
+
                 index := index + 1;
             end
         end
@@ -78,6 +80,8 @@ namespace testing:
             var
                 value := random(0.0, 100.0)
             do
+                println("Send " + value + " at index " + index);
+                
                 if index + 1 > rows * cols then
                     index := 0;
                     loop_count := loop_count + 1;
