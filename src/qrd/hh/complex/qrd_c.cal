@@ -116,7 +116,7 @@ namespace qrd_c.hh:
                 end
                 norm := sqrt(norm);
 
-                phase := my_atan2(x_imag[passes_done], x_real[passes_done]);
+                phase := atan2(x_imag[passes_done], x_real[passes_done]);
                 alpha_real := -norm * cos(phase);
                 alpha_imag := -norm * sin(phase);
 

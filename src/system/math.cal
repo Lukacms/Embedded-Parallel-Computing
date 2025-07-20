@@ -8,6 +8,9 @@ namespace math:
     external function cos(double f) --> double end
     external function tan(double f) --> double end
 
+    external function atan(double f) --> double end
+    external function atan2(double y, double x) --> double end
+
     external function random(float low, float high) --> float end
 
     external function randInt(int n) --> int end
@@ -28,44 +31,5 @@ namespace math:
         end
     end
 
-    function my_atan(double x) --> double:
-        if ( x < 0.0 ) then
-            // atan(-x) = -atan(x)
-            -my_atan(-x)
-        else
-            // x >= 0
-            if ( x <= 1.0 ) then
-                // use approximation for |x| ≤ 1
-                0.7853981633974483 * x - x * (x - 1.0) * (0.2447 + 0.0663 * x)
-            else
-                // x > 1, use atan(x) = π/2 - atan(1/x)
-                1.5707963267948966 - my_atan(1.0 / x)
-            end
-        end
-    end
-
-    function my_atan2(double y, double x) --> double:
-        if ( x > 0.0 ) then
-            my_atan( y / x )
-        else
-            if ( x < 0.0 ) then
-                if ( y >= 0.0 ) then
-                    my_atan( y / x ) + 3.141592653589793
-                else
-                    my_atan( y / x ) - 3.141592653589793
-                end
-            else
-                // x == 0
-                if ( y > 0.0 ) then
-                    1.5707963267948966
-                else
-                    if ( y < 0.0 ) then
-                        -1.5707963267948966
-                    else
-                        0.0
-                    end
-                end
-            end
-        end
-    end
+    
 end
