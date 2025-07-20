@@ -208,16 +208,16 @@ namespace qrd_c.hh:
                 end
 
                 if passes_done = rows then
-                    foreach int i in 0..rows-1 do
-                        foreach int j in 0..cols-1 do
-                            Q_trans_real[j * rows + i] := matQ_real[i * cols + j];
-                            Q_trans_imag[j * rows + i] := matQ_imag[i * cols + j];
-                        end
-                    end
-                    foreach int i in 0..(rows*cols)-1 do
-                        matQ_real[i] := Q_trans_real[i];
-                        matQ_imag[i] := Q_trans_imag[i];
-                    end
+                    // foreach int i in 0..rows-1 do
+                    //     foreach int j in 0..cols-1 do
+                    //         Q_trans_real[j * rows + i] := matQ_real[i * cols + j];
+                    //         Q_trans_imag[j * rows + i] := matQ_imag[i * cols + j];
+                    //     end
+                    // end
+                    // foreach int i in 0..(rows*cols)-1 do
+                    //     matQ_real[i] := Q_trans_real[i];
+                    //     matQ_imag[i] := Q_trans_imag[i];
+                    // end
                     transpose_done := true;
                     sent := 0;
                 end
