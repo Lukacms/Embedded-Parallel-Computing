@@ -74,6 +74,106 @@ namespace display:
             end
         end
 
+    actor DisplayResultsComplex(uint rows, uint cols) double InA_real, double InA_imag, double InQ_real, double InQ_imag, double InR_real, double InR_imag ==>:
+        uint receivedA := 0;
+        uint receivedQ := 0;
+        uint receivedR := 0;
+
+        List(type:double, size=rows * cols) matA_real;
+        List(type:double, size=rows * cols) matA_imag;
+        List(type:double, size=rows * cols) matQ_real;
+        List(type:double, size=rows * cols) matQ_imag;
+        List(type:double, size=rows * cols) matR_real;
+        List(type:double, size=rows * cols) matR_imag;
+
+        receiveA:
+            action InA_real:[r_r], InA_imag:[r_i] ==>
+            do
+                // Copy data from InA to matA
+                // println("Received value: " + r_r +  "," + r_i + " at index " + receivedA);
+
+                matA_real[receivedA] := r_r;
+                matA_imag[receivedA] := r_i;
+                receivedA := receivedA + 1;
+                if (receivedA = rows * cols) then
+                    receivedA := 0; // Reset for next use
+
+                    println("Matrix A:");
+                    foreach uint i in 0..rows-1 do
+                        foreach uint j in 0..cols-1 do
+                            print(matA_real[i * cols + j] + "");
+                            if(matA_imag[i * cols + j] >= 0) then
+                                print("+");
+                                print(matA_imag[i * cols + j] + "");
+                                print("j ");
+                            else
+                                print(matA_imag[i * cols + j] + "");
+                                print("j ");
+                            end
+                            if((j+1) mod cols = 0) then println(""); end
+                        end
+                    end
+                end
+
+            end
+
+        receiveQ:
+            action InQ_real:[r_r], InQ_imag:[r_i] ==>
+            do
+                // Copy data from InQ to matQ
+                matQ_real[receivedQ] := r_r;
+                matQ_imag[receivedQ] := r_i;
+                receivedQ := receivedQ + 1;
+                if (receivedQ = rows * cols) then
+                    receivedQ := 0; // Reset for next use
+
+                    println("Matrix Q:");
+                    foreach uint i in 0..rows-1 do
+                        foreach uint j in 0..cols-1 do
+                            print(matQ_real[i * cols + j] + "");
+                            if(matQ_imag[i * cols + j] >= 0) then
+                                print("+");
+                                print(matQ_imag[i * cols + j] + "");
+                                print("j ");
+                            else
+                                print(matQ_imag[i * cols + j] + "");
+                                print("j ");
+                            end
+                            if((j+1) mod cols = 0) then println(""); end
+                        end
+                    end
+                end
+            end
+
+        receiveR:
+            action InR_real:[r_r], InR_imag:[r_i] ==>
+            do
+                // Copy data from InR to matR
+                matR_real[receivedR] := r_r;
+                matR_imag[receivedR] := r_i;
+                receivedR := receivedR + 1;
+                if (receivedR = rows * cols) then
+                    receivedR := 0; // Reset for next use
+
+                    println("Matrix R:");
+                    foreach uint i in 0..rows-1 do
+                        foreach uint j in 0..cols-1 do
+                            print(matR_real[i * cols + j] + "");
+                            if(matR_imag[i * cols + j] >= 0) then
+                                print("+");
+                                print(matR_imag[i * cols + j] + "");
+                                print("j ");
+                            else
+                                print(matR_imag[i * cols + j] + "");
+                                print("j ");
+                            end
+                            if((j+1) mod cols = 0) then println(""); end
+                        end
+                    end
+                end
+            end
+        end
+
      actor DisplayResultsWithSize() double InA, double InQ, double InR, uint InM, uint InK ==>:
         bool print_done := false;
 

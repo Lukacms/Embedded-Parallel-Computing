@@ -1,0 +1,249 @@
+namespace qrd_c.hh:
+    import all math;
+
+    actor QRDecomposition(uint rows, uint cols) 
+    double InA_real, double InA_imag 
+        ==> 
+    double OutA_real, double OutA_imag,
+    double OutQ_real, double OutQ_imag, 
+    double OutR_real, double OutR_imag:
+
+        uint sizeA := rows * cols;
+        uint receivedA_real := 0;
+        uint receivedA_imag := 0;
+        uint sent := 0;
+
+        List(type:double, size=rows*cols) matA_real;
+        List(type:double, size=rows*cols) matA_imag;
+        List(type:double, size=rows*cols) matQ_real;
+        List(type:double, size=rows*cols) matQ_imag;
+        List(type:double, size=rows*cols) matR_real;
+        List(type:double, size=rows*cols) matR_imag;
+
+        List(type:double, size=rows*cols) stnd_basis_real;
+        List(type:double, size=rows*cols) stnd_basis_imag;
+
+        int passes_done := 0;
+        bool transpose_done := false;
+
+        receive_A_real:
+            action InA_real:[r] ==>
+            guard receivedA_real < sizeA
+            do
+                matA_real[receivedA_real] := r;
+                matR_real[receivedA_real] := r;
+                receivedA_real := receivedA_real + 1;
+            end
+
+        receive_A_imag:
+            action InA_imag:[r] ==>
+            guard receivedA_imag < sizeA
+            do
+                matA_imag[receivedA_imag] := r;
+                matR_imag[receivedA_imag] := r;
+                receivedA_imag := receivedA_imag + 1;
+            end
+
+        qr_decomposition:
+            action ==>
+            guard receivedA_real = sizeA, receivedA_imag = sizeA, passes_done < cols
+            var
+                List(type:double, size=rows) x_real,
+                List(type:double, size=rows) x_imag,
+                List(type:double, size=rows) basis_real,
+                List(type:double, size=rows) basis_imag,
+                List(type:double, size=rows) u_real,
+                List(type:double, size=rows) u_imag,
+                double norm,
+                double alpha_real,
+                double alpha_imag,
+                double norm_u_squared,
+                List(type:double, size=rows*rows) outer_real,
+                List(type:double, size=rows*rows) outer_imag,
+                List(type:double, size=rows*rows) H_real,
+                List(type:double, size=rows*rows) H_imag,
+                List(type:double, size=rows*cols) temp_real,
+                List(type:double, size=rows*cols) temp_imag,
+                List(type:double, size=rows*cols) Q_trans_real,
+                List(type:double, size=rows*cols) Q_trans_imag,
+                double sum_real,
+                double sum_imag,
+                bool is_upper_triangular,
+                double ar,
+                double ai,
+                double pr,
+                double pi,
+                double phase,
+                double scale
+            do
+                is_upper_triangular := true;
+
+                if passes_done = 0 then
+                    foreach int i in 0..rows-1 do
+                        foreach int j in 0..cols-1 do
+                            if i = j then
+                                matQ_real[i * cols + j] := 1.0;
+                                matQ_imag[i * cols + j] := 0.0;
+                                stnd_basis_real[i * cols + j] := 1.0;
+                                stnd_basis_imag[i * cols + j] := 0.0;
+                            else
+                                matQ_real[i * cols + j] := 0.0;
+                                matQ_imag[i * cols + j] := 0.0;
+                                stnd_basis_real[i * cols + j] := 0.0;
+                                stnd_basis_imag[i * cols + j] := 0.0;
+                            end
+                        end
+                    end
+                end
+
+                foreach int i in 0..rows-1 do
+                    x_real[i] := matR_real[i * cols + passes_done];
+                    x_imag[i] := matR_imag[i * cols + passes_done];
+                end
+                foreach int i in 0..passes_done-1 do
+                    x_real[i] := 0.0;
+                    x_imag[i] := 0.0;
+                end
+
+                foreach int i in 0..rows-1 do
+                    basis_real[i] := stnd_basis_real[i * cols + passes_done];
+                    basis_imag[i] := stnd_basis_imag[i * cols + passes_done];
+                end
+
+                norm := 0.0;
+                foreach int i in 0..rows-1 do
+                    norm := norm + x_real[i]*x_real[i] + x_imag[i]*x_imag[i];
+                end
+                norm := sqrt(norm);
+
+                phase := my_atan2(x_imag[passes_done], x_real[passes_done]);
+                alpha_real := -norm * cos(phase);
+                alpha_imag := -norm * sin(phase);
+
+                foreach int i in 0..rows-1 do
+                    ar := alpha_real * basis_real[i] - alpha_imag * basis_imag[i];
+                    ai := alpha_real * basis_imag[i] + alpha_imag * basis_real[i];
+                    u_real[i] := x_real[i] - ar;
+                    u_imag[i] := x_imag[i] - ai;
+                end
+
+                norm_u_squared := 0.0;
+                foreach int i in 0..rows-1 do
+                    norm_u_squared := norm_u_squared + u_real[i]*u_real[i] + u_imag[i]*u_imag[i];
+                end
+
+                if my_fabs(norm_u_squared) < 1.0e-10 then
+                    passes_done := passes_done + 1;
+                else
+                    foreach int i in 0..rows-1 do
+                        foreach int j in 0..rows-1 do
+                            outer_real[i * rows + j] := u_real[i] * u_real[j] + u_imag[i] * u_imag[j];
+                            outer_imag[i * rows + j] := u_imag[i] * u_real[j] - u_real[i] * u_imag[j];
+                            if i = j then
+                                H_real[i * rows + j] := 1.0;
+                                H_imag[i * rows + j] := 0.0;
+                            else
+                                H_real[i * rows + j] := 0.0;
+                                H_imag[i * rows + j] := 0.0;
+                            end
+                            scale := 2.0 / norm_u_squared;
+                            H_real[i * rows + j] := H_real[i * rows + j] - scale * outer_real[i * rows + j];
+                            H_imag[i * rows + j] := H_imag[i * rows + j] - scale * outer_imag[i * rows + j];
+                        end
+                    end
+
+                    foreach int i in 0..rows-1 do
+                        foreach int j in 0..cols-1 do
+                            sum_real := 0.0;
+                            sum_imag := 0.0;
+                            foreach int k in 0..rows-1 do
+                                pr := matQ_real[i * cols + k] * H_real[k * rows + j] - matQ_imag[i * cols + k] * H_imag[k * rows + j];
+                                pi := matQ_real[i * cols + k] * H_imag[k * rows + j] + matQ_imag[i * cols + k] * H_real[k * rows + j];
+                                sum_real := sum_real + pr;
+                                sum_imag := sum_imag + pi;
+                            end
+                            temp_real[i * cols + j] := sum_real;
+                            temp_imag[i * cols + j] := sum_imag;
+                        end
+                    end
+
+                    foreach int i in 0..(rows*cols)-1 do
+                        matQ_real[i] := temp_real[i];
+                        matQ_imag[i] := temp_imag[i];
+                    end
+
+                    foreach int i in 0..rows-1 do
+                        foreach int j in 0..cols-1 do
+                            sum_real := 0.0;
+                            sum_imag := 0.0;
+                            foreach int k in 0..rows-1 do
+                                pr := H_real[i * rows + k] * matR_real[k * cols + j] - H_imag[i * rows + k] * matR_imag[k * cols + j];
+                                pi := H_real[i * rows + k] * matR_imag[k * cols + j] + H_imag[i * rows + k] * matR_real[k * cols + j];
+                                sum_real := sum_real + pr;
+                                sum_imag := sum_imag + pi;
+                            end
+                            temp_real[i * cols + j] := sum_real;
+                            temp_imag[i * cols + j] := sum_imag;
+                        end
+                    end
+                    foreach int i in 0..(rows*cols)-1 do
+                        matR_real[i] := temp_real[i];
+                        matR_imag[i] := temp_imag[i];
+                    end
+
+                    is_upper_triangular := true;
+                    foreach int i in 0..rows-1 do
+                        foreach int j in 0..i-1 do
+                            if matR_real[i * cols + j] != 0.0 or matR_imag[i * cols + j] != 0.0 then
+                                is_upper_triangular := false;
+                            end
+                        end
+                    end
+
+                    if is_upper_triangular then
+                        passes_done := rows;
+                    else
+                        passes_done := passes_done + 1;
+                    end
+                end
+
+                if passes_done = rows then
+                    foreach int i in 0..rows-1 do
+                        foreach int j in 0..cols-1 do
+                            Q_trans_real[j * rows + i] := matQ_real[i * cols + j];
+                            Q_trans_imag[j * rows + i] := matQ_imag[i * cols + j];
+                        end
+                    end
+                    foreach int i in 0..(rows*cols)-1 do
+                        matQ_real[i] := Q_trans_real[i];
+                        matQ_imag[i] := Q_trans_imag[i];
+                    end
+                    transpose_done := true;
+                    sent := 0;
+                end
+            end
+
+        // Send the output matrices Q and R
+        transmit:
+            action ==> 
+            OutA_real:[matA_real[sent-1]], OutQ_real:[matQ_real[sent-1]], OutR_real:[matR_real[sent-1]],
+            OutA_imag:[matA_imag[sent-1]], OutQ_imag:[matQ_imag[sent-1]], OutR_imag:[matR_imag[sent-1]]
+            guard passes_done >= rows, transpose_done = true, sent < (rows * cols)
+            do
+                sent := sent + 1;
+            end
+
+        reset:
+            action ==>
+            guard sent = (rows * cols)
+            do
+                // Reset all variables for the next decomposition
+                receivedA_real := 0;
+                receivedA_imag := 0;
+                sent := 0;
+                passes_done := 0;
+                transpose_done := false;
+            end
+
+        end
+end

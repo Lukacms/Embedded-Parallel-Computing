@@ -1,0 +1,31 @@
+namespace test.qrd_c.hh.source_test:
+    import entity testing.SourceAComplexLoop;
+    import entity display.DisplayResultsComplex;
+    import entity qrd_c.hh.QRDecomposition;
+
+    uint rows = 8;
+    uint cols = 8;
+
+    // Set to 0 for an infinite loop
+    uint loops = 1;
+    
+    network Top() ==> :
+        entities
+            source = SourceAComplexLoop(rows = rows, cols = cols, loops = loops);
+            QRDec = QRDecomposition(rows = rows, cols = cols) { partition = "hw"; };
+            printer = DisplayResultsComplex(rows = rows, cols = cols);
+        structure
+            // Send source to QRDec
+            source.OutA_real --> QRDec.InA_real;
+            source.OutA_imag --> QRDec.InA_imag;
+
+            // Send the input matrix A to printer
+            QRDec.OutA_real --> printer.InA_real;
+            QRDec.OutA_imag --> printer.InA_imag;
+            // Send the QR decomposition results to printer
+            QRDec.OutQ_real --> printer.InQ_real;
+            QRDec.OutQ_imag --> printer.InQ_imag;
+            QRDec.OutR_real --> printer.InR_real;
+            QRDec.OutR_imag --> printer.InR_imag;
+        end
+end

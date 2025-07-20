@@ -12,6 +12,28 @@ namespace testing:
         8,8,8,8,8,8,8,9
     ];
 
+    List(type:double, size=M*K) A_real = [
+        1,2,3,4,5,6,7,8,
+        2,3,4,5,6,7,8,1,
+        3,4,5,6,7,8,1,2,
+        4,5,6,7,8,1,2,3,
+        5,6,7,8,1,2,3,4,
+        6,7,8,1,2,3,4,5,
+        7,8,1,2,3,4,5,6,
+        8,1,2,3,4,5,6,7
+    ];
+
+    List(type:double, size=M*K) A_imag = [
+        1,2,3,4,5,6,7,8,
+        -1,0,1,2,3,4,5,6,
+        2,-1,0,1,2,3,4,5,
+        -3,2,-1,0,1,2,3,4,
+        4,-3,2,-1,0,1,2,3,
+        -5,4,-3,2,-1,0,1,2,
+        6,-5,4,-3,2,-1,0,1,
+        -7,6,-5,4,-3,2,-1,0
+    ];
+
     actor SourceA(uint rows, uint cols) ==> double OutA, uint OutM, uint OutK:
         uint index_A := 0;
         bool tsize := false;
@@ -60,6 +82,22 @@ namespace testing:
         
         transmit_data:
             action ==> OutA:[A[index_A-1]]
+            guard loops = 0 || loop_count < loops
+            do
+                if index_A + 1 > rows * cols then
+                    index_A := 0;
+                    loop_count := loop_count + 1;
+                end
+                index_A := index_A + 1;
+            end
+        end
+
+    actor SourceAComplexLoop(uint rows, uint cols, uint loops) ==> double OutA_real, double OutA_imag:
+        uint index_A := 0;
+        uint loop_count := 0;
+
+        transmit_data:
+            action ==> OutA_real:[A_real[index_A-1]], OutA_imag:[A_imag[index_A-1]]
             guard loops = 0 || loop_count < loops
             do
                 if index_A + 1 > rows * cols then
