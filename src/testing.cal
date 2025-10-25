@@ -128,6 +128,27 @@ namespace testing:
             end
         end
 
+    actor SourceRandomComplexLoop(uint rows, uint cols, uint loops) ==> double OutA_real, double OutA_imag:
+        uint index := 0;
+        uint loop_count := 0;
+
+        transmit_data:
+            action ==> OutA_real:[value_real], OutA_imag:[value_imag]
+            guard loops = 0 || loop_count < loops
+            var
+                value_real := random(0.0, 100.0),
+                value_imag := random(0.0, 100.0)
+            do
+                // println("Send " + value_real + " + " + value_imag + "i at index " + index);
+                
+                if index + 1 > rows * cols then
+                    index := 0;
+                    loop_count := loop_count + 1;
+                end
+                index := index + 1;
+            end
+        end
+
     actor FourSplitter(uint change_every) double In ==> double Out1, double Out2, double Out3, double Out4:
         uint index := 0;
 
