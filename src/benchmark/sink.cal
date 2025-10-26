@@ -1,0 +1,9 @@
+namespace benchmark:
+    actor Sink()
+        int In ==> :
+
+        action In:[token] ==>
+        do
+        end
+    end
+end
