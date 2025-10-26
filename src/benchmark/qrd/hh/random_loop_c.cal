@@ -1,19 +1,20 @@
 namespace benchmark.qrd_c.hh.random_loop:
     import entity testing.SourceAComplexLoop;
+    import entity testing.SourceRandomComplexLoop;
     import entity display.DisplayResultsComplex;
     import entity benchmark.PrintThroughput;
     import entity benchmark.Sink;
     import entity qrd_c.hh.QRDecomposition;
 
-    uint rows = 8;
-    uint cols = 8;
+    uint rows = 64;
+    uint cols = 64;
 
     // Set to 0 for an infinite loop
-    uint loops = 100000;
+    uint loops = 0;
 
     network Top() ==> :
         entities
-            source = SourceAComplexLoop(rows = rows, cols = cols, loops = loops);
+            source = SourceRandomComplexLoop(rows = rows, cols = cols, loops = loops);
             QRDec = QRDecomposition(rows = rows, cols = cols) { partition = "hw"; };
             printer = PrintThroughput(matrixSize = (rows * cols), seconds = 1);
             void1 = Sink();
